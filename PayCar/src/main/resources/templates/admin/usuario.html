@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Lista de Usuarios</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<style>
+		body {
+			background-color: #555;
+			/* Color de fondo principal */
+			color: white;
+			/* Color del texto */
+			font-size: 16px;
+			/* Tamaño de fuente predeterminado */
+			margin: 0;
+			padding: 0;
+		}
+
+		.table-container {
+			display: flex;
+			flex-direction: column;
+			/* Mostrar elementos en columna */
+			align-items: center;
+			/* Centra los elementos horizontalmente */
+			width: 100vw;
+			/* Ocupa todo el ancho de la ventana */
+		}
+
+		.select-container {
+			padding: 10px 0;
+		}
+
+		select {
+			padding: 8px;
+			font-size: 16px;
+			background-color: #333;
+			color: white;
+			border: none;
+		}
+
+		table {
+			border-collapse: collapse;
+			margin: 0;
+			/* Asegúrate de que no haya margen que desplace la tabla */
+			width: auto;
+			/* Permite que la tabla ocupe el ancho de sus contenidos */
+		}
+
+		th,
+		td {
+			border: 1px solid #ddd;
+			padding: 12px;
+			/* Aumenta el espacio interno de las celdas */
+			text-align: left;
+			font-size: 18px;
+			/* Tamaño de fuente para las celdas */
+		}
+
+		th {
+			background-color: #333;
+			/* Color de fondo del encabezado */
+			color: white;
+			/* Color del texto del encabezado */
+		}
+
+		tr:nth-child(even) {
+			background-color: #444;
+			/* Color de fondo de las filas pares */
+		}
+
+		.icono-estado {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.fa {
+			font-size: 24px;
+			/* Tamaño de los iconos */
+			margin-right: 8px;
+			/* Espacio entre el icono y el texto */
+		}
+	</style>
+</head>
+
+<body>
+	<div th:insert="~{layout/main_layout.html}"></div>
+
+	<div class="table-container">
+		<div class="select-container">
+			<form action="/admin/inicio" method="get">
+				<!-- Asegúrate de que la acción del formulario apunte a la URL correcta de tu aplicación -->
+				<select id="filtroEstado" name="estado" onchange="this.form.submit()">
+				<option value="todos" th:selected="${estado == 'todos' || estado == null}">Todos</option>
+					<option value="activados" th:selected="${estado == 'activados'}">Activados</option>
+					<option value="desactivados" th:selected="${estado == 'desactivados'}">Desactivados</option>
+				</select>
+			</form>
+
+
+		</div>
+
+		<table>
+			<tr>
+				<th>Nombre</th>
+				<th>Correo Electrónico</th>
+				<th>Activado</th>
+				<th>Acciones</th>
+			</tr>
+
+			<tr th:each="usuario : ${usuarios}" th:unless="${usuario.borrado}">
+				<td th:text="${usuario.nombre}"></td>
+				<td th:text="${usuario.username}"></td>
+				<td>
+					<!-- Icono de toggle (activar/desactivar) -->
+					<span class="icono-estado">
+						<span th:if="${usuario.activado}" class="fa fa-circle" style="color: green;"></span>
+						<span th:unless="${usuario.activado}" class="fa fa-circle-o" style="color: red;"></span>
+					</span>
+				</td>
+
+				<td>
+					<!-- Primer formulario para activar/desactivar -->
+					<form th:action="@{/admin/activar/{id}(id=${usuario.id})}" method="post" style="display: inline;">
+						<!-- Botón para activar -->
+						<button type="submit" th:if="${usuario.activado}" title="Desactivar"
+							style="background: none; border: none;">
+							<span class="fa fa-toggle-on" style="color: green;"></span>
+						</button>
+						<!-- Botón para desactivar -->
+						<button type="submit" th:unless="${usuario.activado}" title="Activar"
+							style="background: none; border: none;">
+							<span class="fa fa-toggle-off" style="color: red;"></span>
+						</button>
+					</form>
+					<!-- Segundo formulario para borrar -->
+					<form th:action="@{borrar/{id}(id=${usuario.id})}" method="post" style="display: inline;">
+						<!-- Botón para borrar -->
+						<button type="submit" title="Borrar" style="background: none; border: none;">
+							<span class="fa fa-trash" style="color: red;"></span>
+						</button>
+					</form>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+
+<script>
+    window.onload = function () {
+        var urlParams = new URLSearchParams(window.location.search);
+        
+        // Asegúrate de que el ID 'filtroEstado' exista en tu select de estado.
+        var filtroEstado = document.getElementById('filtroEstado');
+        if (filtroEstado) {
+            filtroEstado.value = urlParams.get('estado') || 'todos'; // Usa 'todos' como valor predeterminado.
+        }
+        
+       
+    };
+</script>
+
+
+</html>

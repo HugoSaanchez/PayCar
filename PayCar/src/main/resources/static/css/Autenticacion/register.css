@@ -1,0 +1,81 @@
+@charset "UTF-8";
+
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Roboto', sans-serif;
+    background-color: #121212; /* O el color de fondo que prefieras */
+}
+
+.registro-container {
+    width: 100%;
+    max-width: 400px;
+    background-color: #1f1f1f; /* Color de fondo del contenedor */
+    border-radius: 12px; /* Hacerlo más cuadrado ajustando este valor */
+    color: #fff;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.registro-container h2 {
+    color: #4caf50; /* Color del título */
+    margin-bottom: 1rem;
+}
+
+.registro-container input[type="text"],
+.registro-container input[type="password"],
+.registro-container input[type="email"] {
+    width: 90%; /* Ancho ajustado al 90% para que sea igual que en .login-container */
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border: 1px solid #333; 
+    background-color: #262626; 
+    border-radius: 4px;
+    color: #fff; 
+    font-size: 1rem;
+}
+
+.registro-container input:focus {
+    border-color: #4caf50; /* Cambia el color de la línea al seleccionar el campo de texto */
+}
+
+.registro-container input::placeholder {
+    color: #aaa; /* Color del placeholder */
+}
+
+.registro-container button {
+    width: 90%;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #4caf50; /* Fondo del botón */
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.registro-container button:hover {
+    background-color: #66bb6a; /* Fondo del botón al hacer hover */
+}
+
+.registro-container a {
+    color: #4caf50; /* Color de los enlaces */
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 2rem;
+}
+
+.registro-container a:hover {
+    text-decoration: underline;
+}
+
+.image-logo {
+    width: 7.5rem; /* Tamaño común para íconos */
+    height: auto; /* Esto mantendrá la proporción de la imagen */
+}

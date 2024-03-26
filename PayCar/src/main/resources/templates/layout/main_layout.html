@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú de Navegación Vertical</title>
+    <link rel="stylesheet" href="/css/layout/main_layout.css">
+
+</head>
+
+
+<body >
+
+    <div class="navbar" id="navbar">
+        <div class="user-section">
+            <span class="user-name" th:text="${usuario}"></span> 
+            <div class="user-icon">
+                <span th:text="${usuario.substring(0,1)}"></span> 
+            </div>
+        </div>
+        <ul>
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Acerca de</a></li>
+            <li><a href="#">Servicios</a></li>
+            <li><a href="#">Contacto</a></li>
+        </ul>
+        <div class="icon" id="menuIcon" onclick="toggleMenu()">☰</div> 
+    </div>
+
+
+    <script>
+        function toggleMenu() {
+            var navbar = document.getElementById("navbar");
+            navbar.classList.toggle("active");
+            var menuIcon = document.getElementById("menuIcon");
+            menuIcon.classList.toggle("active"); // Agregar o quitar la clase 'active' al icono del menú
+        }
+    </script>
+
+</body>
+
+</html>

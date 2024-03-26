@@ -1,0 +1,120 @@
+@charset "UTF-8";
+
+body {
+	font-family: Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	height: 100vh;
+	/* Hace que el cuerpo ocupe toda la altura de la ventana */
+}
+
+.navbar {
+	background-color: #333;
+	/* Color de fondo del menú */
+	padding: 10px;
+	width: 10vh;
+	/* Ancho del menú, ajustado al 5% del ancho total */
+	height: 100%;
+	/* El menú ocupa toda la altura disponible */
+	box-sizing: border-box;
+	/* Incluye el padding y el borde en el ancho total */
+	display: flex;
+	flex-direction: column;
+	/* Coloca los elementos uno debajo del otro */
+	justify-content: flex-start;
+	/* Alinea los elementos al principio */
+	align-items: flex-end;
+	/* Alinea los elementos a la derecha */
+	transition: width 0.5s ease;
+	/* Transición suave para el cambio de ancho */
+	overflow: hidden;
+	/* Oculta el contenido que excede el área visible */
+}
+
+
+.navbar:hover,
+.navbar.active {
+	width: 20vh;
+	/* Al pasar el ratón por encima o al activar, el menú se expande al 10% del ancho total */
+}
+
+.navbar ul {
+	list-style-type: none;
+	/* Quita los puntos de lista */
+	margin: 0;
+	padding: 0;
+}
+
+.navbar li {
+	margin-bottom: 10px;
+	/* Espacio entre los elementos del menú */
+}
+
+.navbar a {
+	color: #fff;
+	/* Color del texto del enlace */
+	text-decoration: none;
+	/* Quita el subrayado del enlace */
+	display: block;
+	/* Hace que los enlaces ocupen toda la anchura */
+	padding: 10px;
+}
+
+.navbar a:hover {
+	background-color: #555;
+	/* Color de fondo al pasar el ratón por encima */
+}
+
+.navbar .icon {
+	color: #fff;
+	/* Color del icono */
+	cursor: pointer;
+	/* Cambia el cursor al pasar por encima */
+	padding: 10px;
+	margin-top: auto;
+	/* Mueve el icono al final del menú */
+}
+
+.user-section {
+	display: flex;
+	align-items: center;
+}
+
+.user-name {
+	color: green;
+	/* Color verde para el nombre */
+	margin-right: 5px;
+	/* Espacio entre el nombre y el icono */
+}
+
+.user-icon {
+	background-color: lightgreen;
+	/* Color de fondo del icono */
+	width: 30px;
+	/* Ancho del icono */
+	height: 30px;
+	/* Alto del icono */
+	border-radius: 50%;
+	/* Forma circular */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 16px;
+	/* Tamaño de la letra del icono */
+	font-weight: bold;
+	/* Texto en negrita */
+}
+
+/* Agregar estilo para el icono del menú cuando está activo */
+.icon.active {
+	color: red;
+	/* Cambiar el color del icono cuando está activo */
+}
+
+/* Asegurar que el contenido del menú esté oculto cuando el menú está desactivado y en tamaño completo */
+
+/* Asegurar que el contenido del menú esté visible cuando el menú está desactivado pero con un ancho del 10% */
+.navbar:not(.active) ul {
+    display: block; /* Mostrar la lista de elementos */
+}
