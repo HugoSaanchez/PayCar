@@ -89,7 +89,7 @@
 
 	<div class="table-container">
 		<div class="select-container">
-			<form action="/admin/inicio" method="get">
+			<form action="/admin/usuario" method="get">
 				<!-- Asegúrate de que la acción del formulario apunte a la URL correcta de tu aplicación -->
 				<select id="filtroEstado" name="estado" onchange="this.form.submit()">
 				<option value="todos" th:selected="${estado == 'todos' || estado == null}">Todos</option>

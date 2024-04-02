@@ -38,7 +38,7 @@ public class SecurityConfig {
 									throws IOException, ServletException {
 								Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
 								if (roles.contains("ROL_ADMIN")) {
-									response.sendRedirect("/admin/inicio");
+									response.sendRedirect("/admin/usuario");
 									System.out.println("Roles del alumnosdas: " + roles);
 								} 
 							}

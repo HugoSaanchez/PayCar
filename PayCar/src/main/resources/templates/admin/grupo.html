@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Lista de Grupos</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<style>
+		body {
+			background-color: #555;
+			/* Color de fondo principal */
+			color: white;
+			/* Color del texto */
+			font-size: 16px;
+			/* Tamaño de fuente predeterminado */
+			margin: 0;
+			padding: 0;
+		}
+
+		.container {
+			display: flex;
+			flex-direction: column;
+			/* Mostrar elementos en columna */
+			align-items: center;
+			/* Centra los elementos horizontalmente */
+			width: 100vw;
+			/* Ocupa todo el ancho de la ventana */
+			margin-top: 20px;
+		}
+
+		table {
+			border-collapse: collapse;
+			margin: 0;
+			/* Asegúrate de que no haya margen que desplace la tabla */
+			width: auto;
+			/* Permite que la tabla ocupe el ancho de sus contenidos */
+		}
+
+		th,
+		td {
+			border: 1px solid #ddd;
+			padding: 12px;
+			/* Aumenta el espacio interno de las celdas */
+			text-align: left;
+			font-size: 18px;
+			/* Tamaño de fuente para las celdas */
+			color: white;
+			/* Todas las letras en blanco */
+		}
+
+		th {
+			background-color: #333;
+			/* Color de fondo del encabezado */
+		}
+
+		tr:nth-child(even) {
+			background-color: #444;
+			/* Color de fondo de las filas pares */
+		}
+
+		.modal-content {
+			background-color: #333;
+			color: white;
+		}
+
+		.modal-header {
+			border-bottom: 1px solid #ddd;
+			padding: 15px;
+			background-color: #333;
+		}
+
+		.modal-title {
+			color: white;
+		}
+
+		.modal-body {
+			padding: 15px;
+		}
+
+		.modal-footer {
+			border-top: 1px solid #ddd;
+			padding: 15px;
+			background-color: #333;
+		}
+
+		.btn-info {
+			background-color: #007bff;
+			border-color: #007bff;
+		}
+
+		.btn-info:hover {
+			background-color: #0056b3;
+			border-color: #0056b3;
+		}
+
+		/* Estilos para el icono de activado/desactivado */
+		.fa-circle.green {
+			color: green;
+		}
+
+		.fa-circle-o {
+			color: transparent;
+			/* Hace que el icono esté vacío */
+		}
+
+		/* Estilos para centrar el botón "Más Información" */
+		.more-info-btn {
+			display: flex;
+			justify-content: center;
+		}
+	</style>
+</head>
+
+<body>
+	<div th:insert="~{layout/main_layout.html}"></div>
+	<div class="container">
+		<h2>Lista de Grupos</h2>
+		<table class="table table-striped">
+			<!-- Encabezados de la tabla -->
+			<thead>
+				<tr>
+					<!-- Encabezados de las columnas -->
+					<th>Título</th>
+					<th>Descripción</th>
+					<th>Activado</th>
+					<th>Borrado</th>
+					<th> Más Información</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- Filas de la tabla -->
+				<tr th:each="grupo : ${grupos}">
+					<td th:text="${grupo.titulo}"></td>
+					<td th:text="${grupo.descripcion}"></td>
+					<td>
+						<!-- Icono de activado/desactivado -->
+						<i th:class="${grupo.activado ? 'fa fa-circle green' : 'fa fa-circle-o'}"
+							style="font-size: 20px;"></i>
+					</td>
+					<td th:text="${grupo.borrado ? 'Sí' : 'No'}"></td>
+					<td class="more-info-btn">
+						<!-- Icono para abrir el modal -->
+						<button type="button" class="btn" data-toggle="modal"
+							th:data-target="'#usuariosModal' + ${grupo.id}">
+							<i class="fa fa-info-circle" style="color: #007bff; font-size: 20px;"></i>
+						</button>
+					</td>
+					<td>
+						<!-- Primer formulario para activar/desactivar -->
+						<!-- 	<form th:action="" method="post" style="display: inline;"> -->
+						<!-- Botón para activar -->
+						<button type="submit" th:if="${grupo.activado}" title="Desactivar"
+							style="background: none; border: none;">
+							<span class="fa fa-toggle-on" style="color: green;"></span>
+						</button>
+						<!-- Botón para desactivar -->
+						<button type="submit" th:unless="${grupo.activado}" title="Activar"
+							style="background: none; border: none;">
+							<span class="fa fa-toggle-off" style="color: red;"></span>
+						</button>
+						<!-- 	</form>-->
+						<!-- Segundo formulario para borrar -->
+						<!-- 	<form th:action="" method="post" style="display: inline;"> -->
+						<!-- Botón para borrar -->
+						<button type="submit" title="Borrar" style="background: none; border: none;">
+							<span class="fa fa-trash" style="color: red;"></span>
+						</button>
+						<!-- 	</form> -->
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<!-- Modal para mostrar la información de usuarios -->
+	<div th:each="grupo : ${grupos}" th:id="'usuariosModal' + ${grupo.id}" class="modal fade" tabindex="-1"
+		role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Información de Grupo</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<!-- Mostrar datos de grupo -->
+					<p>Consumo de Gasolina: <span th:text="${grupo.consumoGasolina}"></span></p>
+					<p>Kilómetros Recorridos: <span th:text="${grupo.kilometrosRecorridos}"></span></p>
+					<p>Dinero Gasolina: <span th:text="${grupo.dineroGasolina}"></span></p>
+					<hr>
+					<!-- Mostrar información de usuarios -->
+					<h4>Usuarios en el Grupo:</h4>
+					<div th:each="usuarioGrupo : ${grupo.usuarios}">
+						<p><span th:text="${usuarioGrupo.usuario.nombre}"></span></p>
+						<p><span th:text="${usuarioGrupo.rol}"></span></p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Scripts de Bootstrap -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

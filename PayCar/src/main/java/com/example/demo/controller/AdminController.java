@@ -27,7 +27,7 @@ public class AdminController {
 	@Autowired
 	private AdminService adminService;
 
-	@GetMapping("/inicio")
+	@GetMapping("/usuario")
 	public String mainLayout(@RequestParam(value = "estado", defaultValue = "todos") String estado, Model model) {
 	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	    String email = authentication.getName();
@@ -53,13 +53,13 @@ public class AdminController {
 	@PostMapping("/borrar/{id}")
 	public String borrarUsuario(@PathVariable("id") int id) {
 	    adminService.borrarUsuario(id);
-	    return "redirect:/admin/inicio";
+	    return "redirect:/admin/usuario";
 	}
 	
 	@PostMapping("/activar/{id}")
 	public String activarUsuario(@PathVariable("id") int id) {
 	    adminService.activarUsuario(id);
-	    return "redirect:/admin/inicio";
+	    return "redirect:/admin/usuario";
 	}
 
 

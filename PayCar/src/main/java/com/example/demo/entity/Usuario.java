@@ -13,9 +13,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,16 +39,12 @@ public class Usuario implements UserDetails {
     private boolean activado;
     private boolean borrado;
     
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "usuario_grupo",
-        joinColumns = @JoinColumn(name = "usuario_id"),
-        inverseJoinColumns = @JoinColumn(name = "grupo_id")
-    )
-    private List<Grupo> gruposCreados;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UsuarioGrupo> gruposCreados;
 
-    @ManyToMany(mappedBy = "usuarios", cascade = CascadeType.ALL)
-    private List<Grupo> grupos;
+    @OneToMany(mappedBy = "conductor")
+    private List<ValoracionComentario> valoracionesRecibidas;
+
     
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
