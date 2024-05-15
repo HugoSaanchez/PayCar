@@ -1,3 +1,4 @@
+
 package com.example.demo.security;
 
 import java.io.IOException;
@@ -44,7 +45,8 @@ public class SecurityConfig {
 							}
 						}).permitAll())
 				.logout((logout) -> logout.permitAll().logoutUrl("/logout").logoutSuccessUrl("/index/"));
-
+		
+		
 		return http.build();
 	}
 

@@ -1,15 +1,16 @@
 package com.example.demo.service.impl;
 
-import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entity.Comentario;
 import com.example.demo.entity.Usuario;
-import com.example.demo.entity.ValoracionComentario;
+import com.example.demo.entity.Valoracion;
+import com.example.demo.repository.ComentarioRepository;
 import com.example.demo.repository.UsuarioRepository;
-import com.example.demo.repository.ValoracionComentarioRepository;
+import com.example.demo.repository.ValoracionRepository;
 import com.example.demo.service.AdminService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -21,7 +22,10 @@ public class AdminServiceImpl implements AdminService {
 	private UsuarioRepository usuarioRepository;
 
 	@Autowired
-	private ValoracionComentarioRepository valoracionComentarioRepository;
+	private ValoracionRepository valoracionRepository;
+	
+	@Autowired
+	private ComentarioRepository comentarioRepository;
 
 	@Override
 	public List<Usuario> findByRol(String rol) {
@@ -31,7 +35,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public void borrarUsuario(int id) {
-		Usuario usuario = usuarioRepository.findById(id).orElse(null);
+		Usuario usuario = usuarioRepository.findById(id);
 
 		// Verificar si se encontró el usuario
 		if (usuario != null) {
@@ -48,7 +52,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public void activarUsuario(int id) {
-		Usuario usuario = usuarioRepository.findById(id).orElse(null);
+		Usuario usuario = usuarioRepository.findById(id);
 
 		if (usuario != null) {
 			if (usuario.isActivado())
@@ -78,11 +82,7 @@ public class AdminServiceImpl implements AdminService {
 
 	
 	
-	@Override
-	 public List<String> encontrarComentariosPorConductor(int idConductor) {
-        System.out.println(valoracionComentarioRepository.findComentarioByConductorId(idConductor));
-        return valoracionComentarioRepository.findComentarioByConductorId(idConductor);
-    }
+
 	
 	@Override
     public List<Usuario> ordenarUsuariosPorValoracion(List<Usuario> usuarios, String ordenado) {
@@ -102,15 +102,34 @@ public class AdminServiceImpl implements AdminService {
     
     @Override
     public double obtenerMediaValoracionConductor(int conductorId) {
-        Iterable<ValoracionComentario> valoraciones = valoracionComentarioRepository.findByConductorId(conductorId);
+        Iterable<Valoracion> valoraciones = valoracionRepository.findByConductorId(conductorId);
         int totalValoraciones = 0;
         int totalPuntuacion = 0;
-        for (ValoracionComentario valoracion : valoraciones) {
+        for (Valoracion valoracion : valoraciones) {
             totalValoraciones++;
             totalPuntuacion += valoracion.getValoracion();
         }
         return totalValoraciones > 0 ? (double) totalPuntuacion / totalValoraciones : 0;
+    }   
+    
+    @Override
+    public List<Comentario> encontrarComentariosPorIdConductor(int idConductor) {
+        List<Comentario> comentarios = comentarioRepository.findComentariosAndPasajeroByConductorId(idConductor);
+        for (Comentario comentario : comentarios) {
+        	Usuario conductor = comentario.getConductor();
+            Usuario pasajero = comentario.getPasajero();
+            String textoComentario = comentario.getComentario();
+            System.out.println("Pasajero: " + pasajero.getNombre() + ", Comentario: " + textoComentario +"Conductor: " + conductor.getNombre());
+        }
+        return comentarios;
     }
+
+
+
+
+    
+    
+    
 }
 	
 

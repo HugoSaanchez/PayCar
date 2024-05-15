@@ -7,76 +7,7 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 	<!-- Bootstrap CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<style>
-		body {
-			background-color: #555;
-			color: white;
-			font-size: 16px;
-			margin: 0;
-			padding: 0;
-		}
-
-		.table-container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			width: 100vw;
-		}
-
-		select {
-			padding: 8px;
-			font-size: 16px;
-			background-color: #333;
-			color: white;
-			border: none;
-		}
-
-		table {
-			border-collapse: collapse;
-			margin: 0;
-			width: auto;
-		}
-
-		th,
-		td {
-			border: 1px solid #ddd;
-			padding: 12px;
-			text-align: left;
-			font-size: 18px;
-		}
-
-		th {
-			background-color: #333;
-			color: white;
-		}
-
-		tr:nth-child(even) {
-			background-color: #444;
-		}
-
-		.icono-estado {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-		}
-
-		.fa {
-			font-size: 24px;
-			margin-right: 8px;
-		}
-
-		.fa-star {
-			color: gold;
-		}
-
-		.select-container {
-			margin-bottom: 10px;
-		}
-
-		.select-container select {
-			margin-right: 10px;
-		}
-	</style>
+	<link rel="stylesheet" href="/css/Admin/usuario.css">
 </head>
 
 <body>
@@ -121,9 +52,15 @@
 				</td>
 
 				<td>
-					<button type="button" class="btn btn-primary" data-toggle="modal"
-						data-target="#comentariosModal">Comentario</button>
+					<a th:href="@{'/admin/comentarios/conductor/' + ${usuario.id}}">
+						<button type="button" class="btn btn-primary" data-toggle="modal"
+							data-target="#comentariosModal">
+							<span class="fa fa-comment"></span>
+						</button>
+					</a>
+
 				</td>
+
 
 				<td>
 					<span class="icono-estado">
@@ -153,9 +90,9 @@
 		</table>
 	</div>
 
-	<!-- Modal -->
 	<div class="modal fade" id="comentariosModal" tabindex="-1" role="dialog" aria-labelledby="comentariosModalLabel"
 		aria-hidden="true">
+		<!-- Estructura del modal aquí -->
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -165,8 +102,10 @@
 					</button>
 				</div>
 				<div class="modal-body">
-					<!-- Aquí puedes agregar el contenido de los comentarios -->
-					<p>Comentario 1</p>
+					<!-- Mostrar los comentarios aquí -->
+					<ul>
+						<li th:each="comentario : ${comentarios}" th:text="${comentario.comentario}"></li>
+					</ul>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -174,24 +113,31 @@
 			</div>
 		</div>
 	</div>
-<script>
-    window.onload = function () {
-        var urlParams = new URLSearchParams(window.location.search);
-        
-        // Asegúrate de que el ID 'filtroEstado' exista en tu select de estado.
-        var filtroEstado = document.getElementById('filtroEstado');
-        if (filtroEstado) {
-            filtroEstado.value = urlParams.get('estado') || 'todos'; // Usa 'todos' como valor predeterminado.
-        }
-        
-        var filtroOrdenado = document.getElementById('filtroOrdenado');
-        if (filtroOrdenado) {
-            filtroOrdenado.value = urlParams.get('ordenado') || 'sinFiltro'; // Usa 'todos' como valor predeterminado.
-        }
-        
-       
-    };
-</script>
+
+	<script>
+		window.onload = function () {
+			var urlParams = new URLSearchParams(window.location.search);
+
+			// Asegúrate de que el ID 'filtroEstado' exista en tu select de estado.
+			var filtroEstado = document.getElementById('filtroEstado');
+			if (filtroEstado) {
+				filtroEstado.value = urlParams.get('estado') || 'todos'; // Usa 'todos' como valor predeterminado.
+			}
+
+			var filtroOrdenado = document.getElementById('filtroOrdenado');
+			if (filtroOrdenado) {
+				filtroOrdenado.value = urlParams.get('ordenado') || 'sinFiltro'; // Usa 'todos' como valor predeterminado.
+			}
+		};
+
+		function cargarComentarios(idUsuario) {
+			// Aquí puedes realizar una solicitud AJAX para obtener los comentarios del usuario con el ID proporcionado
+			// Por simplicidad, aquí simplemente agregaremos texto de ejemplo al contenedor de comentarios
+			var comentariosContainer = document.getElementById('comentariosContainer');
+			comentariosContainer.innerHTML = 'Aquí van los comentarios del usuario con ID ' + idUsuario;
+		}
+	</script>
+
 </body>
 
 </html>

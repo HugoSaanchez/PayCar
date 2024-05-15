@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class ValoracionComentario {
+public class Valoracion {
 
     @Id
     @GeneratedValue
@@ -28,5 +28,5 @@ public class ValoracionComentario {
     @Column(nullable = false)
     private int valoracion;
 
-    private String comentario;
+  
 }

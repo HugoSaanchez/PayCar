@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import java.util.List;
 
+import com.example.demo.entity.Comentario;
 import com.example.demo.entity.Usuario;
 
 public interface AdminService {
@@ -16,9 +17,11 @@ public interface AdminService {
 
 	public double obtenerMediaValoracionConductor(int idConductor);
 
-	List<String> encontrarComentariosPorConductor(int idConductor);
 
 	public List<Usuario> ordenarUsuariosPorValoracion(List<Usuario> usuarios, String orden);
+	
+	public List<Comentario> encontrarComentariosPorIdConductor(int idConductor);
+	 
 	
 	
 

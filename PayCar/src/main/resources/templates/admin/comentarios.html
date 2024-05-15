@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comentarios de Conductor</title>
+    <style>
+        body {
+            background-color: #555;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+        }
+        .comentarios {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .comentario {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #777;
+            width: 80%;
+            max-width: 600px;
+        }
+        .nombre-pasajero {
+            font-weight: bold;
+            color: white;
+            font-size: 20px;
+        }
+        .texto-comentario {
+            margin-top: 5px;
+            font-size: 18px;
+            color: white;
+        }
+        /* Añadido para centrar el h1 */
+        h1 {
+            text-align: center;
+            width: 100%;
+        }
+         .boton-personalizado {
+            padding: 10px 15px;
+            background-color: #333; /* Color de fondo */
+            border: none;
+            border-radius: 5px;
+            color: white; /* Color de texto */
+            text-transform: uppercase; /* Mayúsculas */
+            cursor: pointer; /* Cursor en forma de mano */
+            outline: none; /* Remover borde al hacer clic */
+            margin-top: 20px; /* Espacio arriba */
+            text-decoration: none; /* Eliminar subrayado */
+        }
+        /* Efecto al pasar el mouse por encima del botón */
+        .boton-personalizado:hover {
+            background-color: #555;
+            text-decoration: none; /* Asegurarse de que no aparezca el subrayado al pasar el mouse */
+        }
+    </style>
+</head>
+<body>
+	<div th:if="${comentarios == null || comentarios.empty}">
+<h1 >No hay Comentarios</h1>
+  </div>
+       <ul th:unless="${comentarios == null || comentarios.empty}">
+    <h1 th:text="'Comentarios de ' + ${nombreConductor}">Comentarios de Conductor</h1>
+
+    <div class="comentarios">
+        <div th:each="comentario : ${comentarios}" class="comentario">
+            <span class="nombre-pasajero" th:text="${comentario.pasajero.nombre} + ': '"></span>
+            <span class="texto-comentario" th:text="${comentario.comentario}"></span>
+        </div>
+    </div>
+     </ul>
+    <!-- Botón que lleva a otra página -->
+    <div style="text-align: center;">
+        <a th:href="@{/admin/usuario}" class="boton-personalizado">Ir atras</a>
+    </div>
+    
+</body>
+</html>

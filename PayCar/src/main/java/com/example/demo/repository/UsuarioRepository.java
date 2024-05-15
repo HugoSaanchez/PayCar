@@ -11,6 +11,7 @@ import com.example.demo.entity.Usuario;
 @Repository("usuarioRepository")
 public interface UsuarioRepository extends JpaRepository<Usuario, Serializable> {
 	public abstract Usuario findByUsername(String username);
+	public abstract Usuario findById(int id);
 
 	public abstract List<Usuario> findByRol(String rol);
 	

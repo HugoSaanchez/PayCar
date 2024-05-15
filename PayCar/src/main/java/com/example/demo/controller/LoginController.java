@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,9 @@ import com.example.demo.entity.Usuario;
 import com.example.demo.model.UsuarioModel;
 import com.example.demo.service.UsuarioService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @Controller
 public class LoginController {
 
@@ -26,16 +30,17 @@ public class LoginController {
 	        return "redirect:/auth/login";
 	    }
 
-	    @GetMapping("/auth/login")
-	    public String login(Model model, 
-	                        @RequestParam(name = "error", required = false) String error,
-	                        @RequestParam(name = "logout", required = false) String logout) 
-	    {
-	        model.addAttribute("usuario", new Usuario());
-	        model.addAttribute("error", error != null);  
-	        model.addAttribute("logout", logout);
-	        return "Autenticacion/login";
-	    }
+	   @GetMapping("/auth/login")
+	   public String login(Model model, 
+	                       @RequestParam(name = "error", required = false) String error,
+	                       @RequestParam(name = "logout", required = false) String logout) 
+	   {
+	       model.addAttribute("usuario", new Usuario());
+	       model.addAttribute("error", error != null);  
+	       model.addAttribute("logout", logout);
+	       return "Autenticacion/login";
+	   }
+
 
 	   
 	 
@@ -51,4 +56,10 @@ public class LoginController {
 	        flash.addFlashAttribute("success", "Usuario registrado con éxito!!");
 	        return "redirect:/auth/login";
 	    }
+	 
+	 @GetMapping("/auth/logout")
+	 public String logout(HttpServletRequest request, HttpServletResponse response) {
+		  return usuarioService.logout(request, response);
+	 }
+
 }

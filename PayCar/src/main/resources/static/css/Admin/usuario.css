@@ -1,0 +1,81 @@
+/* Estilos generales para la página */
+
+body {
+    background-color: #555;
+    color: white;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+}
+
+select {
+    padding: 8px;
+    font-size: 16px;
+    background-color: #333;
+    color: white;
+    border: none;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 0;
+    width: auto;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+    font-size: 18px;
+}
+
+th {
+    background-color: #333;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #444;
+}
+
+.icono-estado {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fa {
+    font-size: 24px;
+    margin-right: 8px;
+}
+
+.fa-star {
+    color: gold;
+}
+
+.select-container {
+    margin-bottom: 10px;
+}
+
+.select-container select {
+    margin-right: 10px;
+}
+
+/* Estilos para el botón de comentarios */
+.comment-btn {
+    background: none;
+    border: none;
+}
+
+/* Asegurar que el icono de comentario tenga color blanco */
+.comment-btn .fa-comment {
+    color: white;
+}

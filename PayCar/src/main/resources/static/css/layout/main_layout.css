@@ -13,7 +13,7 @@ body {
 	background-color: #333;
 	/* Color de fondo del menú */
 	padding: 10px;
-	width: 10vh;
+	width: 20vh;
 	/* Ancho del menú, ajustado al 5% del ancho total */
 	height: 100%;
 	/* El menú ocupa toda la altura disponible */
@@ -33,11 +33,7 @@ body {
 }
 
 
-.navbar:hover,
-.navbar.active {
-	width: 20vh;
-	/* Al pasar el ratón por encima o al activar, el menú se expande al 10% del ancho total */
-}
+
 
 .navbar ul {
 	list-style-type: none;
@@ -106,15 +102,7 @@ body {
 	/* Texto en negrita */
 }
 
-/* Agregar estilo para el icono del menú cuando está activo */
-.icon.active {
-	color: red;
-	/* Cambiar el color del icono cuando está activo */
-}
+.logout-icon {
 
-/* Asegurar que el contenido del menú esté oculto cuando el menú está desactivado y en tamaño completo */
-
-/* Asegurar que el contenido del menú esté visible cuando el menú está desactivado pero con un ancho del 10% */
-.navbar:not(.active) ul {
-    display: block; /* Mostrar la lista de elementos */
+    color: lightgreen; /* Color verde */
 }

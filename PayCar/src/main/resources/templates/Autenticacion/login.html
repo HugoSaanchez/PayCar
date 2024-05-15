@@ -16,11 +16,12 @@
     <div class="login-container">
         <h1>Inicio de sesión</h1>
         <img src="/imgs/logo.png" alt="Logo" class="image-logo">
-   <form th:action="@{/auth/login}" method="post" th:object="${usuario}">
-            <input type="email" name="username" placeholder="Correo electrónico" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <button type="submit">Iniciar sesión</button>
-        </form>
+<form th:action="@{/auth/login}" method="post" th:object="${usuario}">
+    <input type="email" name="username" placeholder="Correo electrónico" required>
+    <input type="password" name="password" placeholder="Contraseña" required>
+    <button type="submit">Iniciar sesión</button>
+</form>
+
 
         <a href="/auth/register">¿No tienes una cuenta? Regístrate aquí</a>
     </div>
