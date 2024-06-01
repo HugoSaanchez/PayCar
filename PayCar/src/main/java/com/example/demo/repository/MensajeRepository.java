@@ -21,6 +21,6 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Serializable> 
 	   List<String> findDistinctReceptorNamesByEmisorId(int idEmisor);
 
 
-
+	    List<Mensaje> findByEmisorId(int emisorId);
 	
 }

@@ -2,12 +2,14 @@ package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Mensaje;
 import com.example.demo.entity.Usuario;
+import com.example.demo.entityDTO.UsuarioDTO;
 import com.example.demo.repository.MensajeRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.service.MensajeService;
@@ -48,5 +50,21 @@ public class MensajeServiceImpl implements MensajeService {
 	public List<String> obtenerNombresReceptoresPorIdEmisor(int idEmisor) {
 	    return mensajeRepository.findDistinctReceptorNamesByEmisorId(idEmisor);
 	}
+	
+	@Override
+	public List<UsuarioDTO> obtenerUsuariosReceptoresPorIdEmisor(int idEmisor) {
+	    List<Mensaje> mensajes = mensajeRepository.findByEmisorId(idEmisor);
+	    return mensajes.stream()
+	            .map(mensaje -> new UsuarioDTO(
+	                mensaje.getReceptor().getId(),
+	                mensaje.getReceptor().getNombre(),
+	                mensaje.getReceptor().getUsername(),
+	                mensaje.getReceptor().getRol(),
+	                mensaje.getReceptor().isActivado(),
+	                null))
+	            .distinct()
+	            .collect(Collectors.toList());
+	}
+
 
 }

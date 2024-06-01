@@ -3,12 +3,10 @@ package com.example.demo.controller;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.Mensaje;
 import com.example.demo.entity.Usuario;
 import com.example.demo.entityDTO.MensajeDTO;
+import com.example.demo.entityDTO.UsuarioDTO;
 import com.example.demo.service.MensajeService;
 import com.example.demo.service.UsuarioService;
 
@@ -77,15 +76,16 @@ public class ChatController {
 	    }
 	 
 	 @GetMapping("/chats")
-	 public List<String> misReceptores() {
+	 public ResponseEntity<List<UsuarioDTO>> misReceptores() {
 	     String username = SecurityContextHolder.getContext().getAuthentication().getName();
 	     Usuario usuarioAutenticado = usuarioService.findByUsername(username);
 
-	     List<String> nombres = mensajeService.obtenerNombresReceptoresPorIdEmisor(usuarioAutenticado.getId());
-	     System.out.println("Nombres de Receptores para el usuario " + username + ": " + nombres);
+	     List<UsuarioDTO> usuarios = mensajeService.obtenerUsuariosReceptoresPorIdEmisor(usuarioAutenticado.getId());
+	     System.out.println("Usuarios receptores para el usuario " + username + ": " + usuarios);
 
-	     return nombres;
+	     return ResponseEntity.ok(usuarios);
 	 }
+
 
 }
 

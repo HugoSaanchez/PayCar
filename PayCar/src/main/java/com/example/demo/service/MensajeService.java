@@ -3,7 +3,7 @@ package com.example.demo.service;
 import java.util.List;
 
 import com.example.demo.entity.Mensaje;
-import com.example.demo.entity.Usuario;
+import com.example.demo.entityDTO.UsuarioDTO;
 
 public interface MensajeService {
 	
@@ -12,4 +12,5 @@ public interface MensajeService {
 
 	    public List<Integer> obtenerIdsReceptoresPorIdEmisor(int idEmisor);
 	    public List<String> obtenerNombresReceptoresPorIdEmisor(int idEmisor);
+	    public List<UsuarioDTO> obtenerUsuariosReceptoresPorIdEmisor(int idEmisor);
 }
