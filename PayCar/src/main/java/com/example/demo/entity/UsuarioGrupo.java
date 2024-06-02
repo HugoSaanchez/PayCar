@@ -31,4 +31,8 @@ public class UsuarioGrupo {
 
     // Aquí agregamos el nuevo campo 'rol'
     private String rol;
+    
+    private float costetotal;
+    
+    private float costepagado;
 }

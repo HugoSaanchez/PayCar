@@ -54,6 +54,9 @@ public class Usuario implements UserDetails {
 	
 	 @Column(length = 1000) // Ajusta la longitud según sea necesario
 	    private String amigos="";
+	 
+	 @Column(length = 1000) // Ajusta la longitud según sea necesario
+	    private String amigosConfirmados="";
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

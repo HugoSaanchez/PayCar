@@ -1,8 +1,13 @@
 package com.example.demo.service;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 
+import com.example.demo.entity.Comentario;
 import com.example.demo.entity.Usuario;
+import com.example.demo.entity.Valoracion;
 import com.example.demo.model.UsuarioModel;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,4 +33,14 @@ public interface UsuarioService {
 	void actualizarListaAmigos(Usuario usuario, int idAmigoNuevo);
 
 	ResponseEntity<String> agregarAmigo(int idAmigo);
+	
+	 public void confirmarAmigo( int amigoId);
+	 public List<Valoracion> valorarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, int valoracion);
+	 
+	 public List<Comentario> comentarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, String comentario);
+
+	 public Valoracion obtenerValoracion(Usuario pasajero, Usuario conductor, int idGrupo);
+	 public Comentario obtenerComentario(Usuario pasajero, Usuario conductor, int idGrupo);
+	 public void borrarAmigo(int idUsuario, int idAmigo);
+	 public Map<String, Object> obtenerEstadisticasUsuario(int idUsuario);
 }
