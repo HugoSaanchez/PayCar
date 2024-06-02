@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.example.demo.apisecurity.JWTAuthorizationFilter;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +28,21 @@ import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
+	 @Order(1)
+	 @Bean
+	    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+	        http
+	            .csrf().disable()
+	            .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+	            .authorizeHttpRequests()
+	            .requestMatchers(new AntPathRequestMatcher("/api/login"), new AntPathRequestMatcher("/api/register")).permitAll()
+	            .requestMatchers("/api/**").authenticated()
+	            .and()
+	            .formLogin().disable();
+	        return http.build();
+	    }
+	
+	@Order(2)
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests((requests) -> requests
@@ -55,5 +74,7 @@ public class SecurityConfig {
 			throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
+	
+
 
 }
