@@ -25,8 +25,10 @@ public class Valoracion {
     @ManyToOne
     private Usuario conductor;
 
+    @ManyToOne
+    private Grupo grupo;  // Relación con la entidad Grupo
+
     @Column(nullable = false)
     private int valoracion;
 
-  
 }
