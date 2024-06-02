@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,36 +85,43 @@ public class GrupoApiController {
 	}
 
 	@GetMapping("/unirse-grupo")
-	public String unirseGrupo(@RequestParam("codigo") String codigoInvitacion, Model model) {
-		// Obtener la invitación correspondiente al código
-		Invitacion invitacion = grupoService.obtenerGrupoPorCodigo(codigoInvitacion);
+	public ResponseEntity<?> unirseGrupo(@RequestParam("codigo") String codigoInvitacion, Model model) {
+	    // Obtener la invitación correspondiente al código
+	    Invitacion invitacion = grupoService.obtenerGrupoPorCodigo(codigoInvitacion);
 
-		// Verificar si la invitación existe
-		if (invitacion != null) {
-			// Obtener el ID del grupo asociado al código de invitación
-			int grupoId = invitacion.getGrupo().getId();
+	    // Verificar si la invitación existe
+	    if (invitacion != null) {
+	        // Obtener el ID del grupo asociado al código de invitación
+	        int grupoId = invitacion.getGrupo().getId();
 
-			// Obtener el usuario autenticado
-			String username = SecurityContextHolder.getContext().getAuthentication().getName();
-			Usuario usuario = usuarioService.findByUsername(username);
+	        // Obtener el usuario autenticado
+	        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	        Usuario usuario = usuarioService.findByUsername(username);
 
-			// Crear un UsuarioGrupo con el usuario y el grupo correspondiente
-			UsuarioGrupo usuarioGrupo = new UsuarioGrupo();
-			usuarioGrupo.setUsuario(usuario);
-			usuarioGrupo.setGrupo(grupoService.obtenerGrupoPorId(grupoId));
-			usuarioGrupo.setRol("pasajero"); // O el rol que desees asignar al usuario
+	        // Verificar si el usuario ya está en el grupo
+	        Optional<UsuarioGrupo> usuarioGrupoExistente = grupoService.obtenerRolYNombrePorUsuarioYGrupo(usuario.getId(), grupoId);
+	        if (usuarioGrupoExistente.isPresent()) {
+	            // Si el usuario ya está en el grupo, devolver un mensaje de error
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya estás en este grupo.");
+	        }
 
-			// Guardar el UsuarioGrupo
-			grupoService.crearUsuarioGrupo(usuarioGrupo);
+	        // Crear un UsuarioGrupo con el usuario y el grupo correspondiente
+	        UsuarioGrupo usuarioGrupo = new UsuarioGrupo();
+	        usuarioGrupo.setUsuario(usuario);
+	        usuarioGrupo.setGrupo(grupoService.obtenerGrupoPorId(grupoId));
+	        usuarioGrupo.setRol("pasajero"); // O el rol que desees asignar al usuario
 
-			// Redirigir a una vista de éxito o donde sea adecuado
-			return "redirect:/exito";
-		} else {
-			// Si la invitación no existe, redirigir a una vista de error o donde sea
-			// adecuado
-			return "redirect:/error";
-		}
+	        // Guardar el UsuarioGrupo
+	        grupoService.crearUsuarioGrupo(usuarioGrupo);
+
+	        // Devolver un mensaje de éxito
+	        return ResponseEntity.ok("Te has unido al grupo exitosamente.");
+	    } else {
+	        // Si la invitación no existe, devolver un mensaje de error
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Código de invitación no válido.");
+	    }
 	}
+
 
 	@GetMapping("/grupos")
 	public List<Map<String, Object>> getGruposDelUsuario() {
@@ -138,6 +147,7 @@ public class GrupoApiController {
         Map<String, Object> response = new HashMap<>();
         if (usuarioGrupoOptional.isPresent()) {
             UsuarioGrupo usuarioGrupo = usuarioGrupoOptional.get();
+            response.put("id", usuarioGrupo.getUsuario().getId());
             response.put("nombre", usuarioGrupo.getUsuario().getNombre());
             response.put("rol", usuarioGrupo.getRol());
         } else {
@@ -146,5 +156,204 @@ public class GrupoApiController {
 
         return response;
     }
+	
+	@PostMapping("/calcular-costo-viaje")
+	public ResponseEntity<?> calcularCostoViaje(@RequestParam int grupoId) {
+	    Grupo grupo = grupoService.obtenerGrupoPorId(grupoId);
+	    if (grupo == null) {
+	        return ResponseEntity.badRequest().body("Grupo no encontrado");
+	    }
+
+	    // Asumimos que solo los usuarios activos en el grupo cuentan para dividir el costo
+	    long integrantes = grupo.getUsuarios().stream()
+	            .filter(usuarioGrupo -> !usuarioGrupo.getUsuario().isBorrado())
+	            .count();
+
+	    if (integrantes == 0) {
+	        return ResponseEntity.badRequest().body("No hay integrantes activos en el grupo");
+	    }
+
+	    // Realizar el cálculo del costo del viaje
+	    double costoViaje = (grupo.getKilometrosRecorridos() * (grupo.getConsumoGasolina() / 100) * grupo.getDineroGasolina());
+
+	    System.out.println(costoViaje);
+	    System.out.println(grupo.getKilometrosRecorridos());
+	    System.out.println(grupo.getConsumoGasolina());
+	    System.out.println(grupo.getDineroGasolina());
+	    System.out.println(integrantes);
+
+	    // Actualizar el campo 'costetotal' en cada UsuarioGrupo
+	    for (UsuarioGrupo usuarioGrupo : grupo.getUsuarios()) {
+	        if (!usuarioGrupo.getUsuario().isBorrado()) {
+	            if ("conductor".equals(usuarioGrupo.getRol())) {
+	                usuarioGrupo.setCostetotal((float) ((float) costoViaje - (costoViaje/integrantes))); // No dividir para el conductor
+	            } else {
+	                usuarioGrupo.setCostetotal((float) (costoViaje / integrantes)); // Dividir entre los pasajeros
+	            }
+	            grupoService.actualizarUsuarioGrupo(usuarioGrupo);
+	        }
+	    }
+
+	    // Formatear la respuesta
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("costoViaje", costoViaje);
+	    response.put("grupoId", grupoId);
+	    response.put("tituloGrupo", grupo.getTitulo());
+
+	    return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("/editar-grupo")
+	public ResponseEntity<?> editarGrupo(@RequestParam int grupoId, @RequestBody Map<String, Object> updates) {
+	    Grupo grupo = grupoService.obtenerGrupoPorId(grupoId);
+	    if (grupo == null) {
+	        return ResponseEntity.badRequest().body("Grupo no encontrado");
+	    }
+
+	    if (updates.containsKey("dineroGasolina")) {
+	        grupo.setDineroGasolina(((Number) updates.get("dineroGasolina")).floatValue());
+	    }
+	    if (updates.containsKey("kilometrosRecorridos")) {
+	        grupo.setKilometrosRecorridos(((Number) updates.get("kilometrosRecorridos")).intValue());
+	    }
+	    if (updates.containsKey("consumoGasolina")) {
+	        grupo.setConsumoGasolina(((Number) updates.get("consumoGasolina")).floatValue());
+	    }
+
+	    grupoService.actualizarGrupo(grupo);
+
+	    // Construir un mapa de la respuesta excluyendo los usuarios
+	    Map<String, Object> response = Map.of(
+	        "id", grupo.getId(),
+	        "titulo", grupo.getTitulo(),
+	        "descripcion", grupo.getDescripcion(),
+	        "consumoGasolina", grupo.getConsumoGasolina(),
+	        "kilometrosRecorridos", grupo.getKilometrosRecorridos(),
+	        "dineroGasolina", grupo.getDineroGasolina(),
+	        "activado", grupo.isActivado(),
+	        "borrado", grupo.isBorrado()
+	    );
+
+	    return ResponseEntity.ok(response);
+	}
+	
+	@GetMapping("/obtener-grupo")
+	public ResponseEntity<?> obtenerGrupo(@RequestParam int grupoId) {
+		Grupo grupo = grupoService.obtenerGrupoPorId(grupoId);
+		if (grupo == null) {
+			return ResponseEntity.badRequest().body("Grupo no encontrado");
+		}
+		// Construir un mapa de la respuesta excluyendo los usuarios
+		Map<String, Object> response = Map.of("id", grupo.getId(), "titulo", grupo.getTitulo(),
+				"descripcion", grupo.getDescripcion(), "consumoGasolina", grupo.getConsumoGasolina(),
+				"kilometrosRecorridos", grupo.getKilometrosRecorridos(), "dineroGasolina", grupo.getDineroGasolina(),
+				"activado", grupo.isActivado(), "borrado", grupo.isBorrado());
+		return ResponseEntity.ok(response);
+	}
+	
+    @GetMapping("/calcular-diferencia-coste")
+    public ResponseEntity<?> calcularDiferenciaCoste(@RequestParam int grupoId) {
+        Map<String, Float> diferencias = grupoService.calcularDiferenciaCoste(grupoId);
+        if (diferencias == null) {
+            return ResponseEntity.badRequest().body("Grupo no encontrado");
+        }
+        
+        return ResponseEntity.ok(diferencias);
+    }
+    
+    @PostMapping("/pagar")
+    public ResponseEntity<?> pagar(@RequestParam int grupoId, @RequestParam int usuarioId) {
+        // Obtén el grupo
+        Grupo grupo = grupoService.obtenerGrupoPorId(grupoId);
+        if (grupo == null) {
+            return ResponseEntity.badRequest().body("Grupo no encontrado");
+        }
+
+        // Busca el UsuarioGrupo correspondiente
+        Optional<UsuarioGrupo> usuarioGrupoOptional = grupoService.obtenerRolYNombrePorUsuarioYGrupo(usuarioId, grupoId);
+        if (!usuarioGrupoOptional.isPresent()) {
+            return ResponseEntity.badRequest().body("Usuario no encontrado en el grupo");
+        }
+
+        // Actualiza el costepagado para igualarlo al costetotal
+        UsuarioGrupo usuarioGrupo = usuarioGrupoOptional.get();
+        usuarioGrupo.setCostepagado(usuarioGrupo.getCostetotal());
+        grupoService.actualizarUsuarioGrupo(usuarioGrupo);
+
+        // Construir la respuesta
+        Map<String, Object> response = new HashMap<>();
+        response.put("usuarioId", usuarioId);
+        response.put("grupoId", grupoId);
+        response.put("costepagado", usuarioGrupo.getCostepagado());
+        response.put("costetotal", usuarioGrupo.getCostetotal());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/actualizar-costepagado")
+    public ResponseEntity<?> actualizarCostepagado(@RequestParam int grupoId, @RequestParam int usuarioId) {
+        Grupo grupo = grupoService.obtenerGrupoPorId(grupoId);
+        if (grupo == null) {
+            return ResponseEntity.badRequest().body("Grupo no encontrado");
+        }
+
+        Optional<UsuarioGrupo> usuarioGrupoOptional = grupoService.obtenerRolYNombrePorUsuarioYGrupo(usuarioId, grupoId);
+        if (!usuarioGrupoOptional.isPresent()) {
+            return ResponseEntity.badRequest().body("Usuario no encontrado en el grupo");
+        }
+
+        UsuarioGrupo usuarioGrupo = usuarioGrupoOptional.get();
+        float diferencia = usuarioGrupo.getCostetotal() - usuarioGrupo.getCostepagado();
+
+        // Actualizar el costepagado del usuario
+        if (diferencia > 0) {
+            usuarioGrupo.setCostepagado(usuarioGrupo.getCostepagado() + diferencia);
+        } else {
+            usuarioGrupo.setCostepagado(usuarioGrupo.getCostetotal());
+        }
+        grupoService.actualizarUsuarioGrupo(usuarioGrupo);
+
+        // Obtener el UsuarioGrupo del conductor
+        Optional<UsuarioGrupo> conductorGrupoOptional = grupo.getUsuarios().stream()
+                .filter(ug -> ug.getRol().equals("conductor"))
+                .findFirst();
+        
+        if (!conductorGrupoOptional.isPresent()) {
+            return ResponseEntity.badRequest().body("Conductor no encontrado en el grupo");
+        }
+
+        UsuarioGrupo conductorGrupo = conductorGrupoOptional.get();
+
+        // Actualizar el costepagado del conductor
+        if (diferencia > 0) {
+            conductorGrupo.setCostepagado(conductorGrupo.getCostepagado() + diferencia);
+        } else {
+            conductorGrupo.setCostepagado(conductorGrupo.getCostepagado() + usuarioGrupo.getCostetotal());
+        }
+        grupoService.actualizarUsuarioGrupo(conductorGrupo);
+
+        // Construir la respuesta
+        Map<String, Object> response = new HashMap<>();
+        response.put("usuarioId", usuarioId);
+        response.put("grupoId", grupoId);
+        response.put("costepagadoUsuario", usuarioGrupo.getCostepagado());
+        response.put("costetotalUsuario", usuarioGrupo.getCostetotal());
+        response.put("costepagadoConductor", conductorGrupo.getCostepagado());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/obtener-invitacion")
+    public ResponseEntity<?> obtenerInvitacion(@RequestParam int grupoId) {
+        Invitacion invitacion = grupoService.obtenerInvitacionPorGrupoId(grupoId);
+        if (invitacion == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invitación no encontrada para el grupo especificado.");
+        }
+
+        String enlaceInvitacion = invitacion.getCodigoInvitacion();
+        return ResponseEntity.ok(enlaceInvitacion);
+    }
+
+
 
 }

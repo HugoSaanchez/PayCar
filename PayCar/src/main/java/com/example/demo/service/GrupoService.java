@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.example.demo.entity.Grupo;
@@ -20,4 +21,10 @@ public interface GrupoService {
 	public abstract Invitacion obtenerGrupoPorCodigo(String codigoInvitacion);
     public List<Grupo> obtenerGruposPorUsuario(Usuario usuario);
     public Optional<UsuarioGrupo> obtenerRolYNombrePorUsuarioYGrupo(int usuarioId, int grupoId);
+
+    public Grupo actualizarGrupo(Grupo grupo);
+    public void actualizarUsuarioGrupo(UsuarioGrupo usuarioGrupo);
+    public Map<String, Float> calcularDiferenciaCoste(int grupoId);
+   public Invitacion obtenerInvitacionPorGrupoId(int grupoId);
+       
 }

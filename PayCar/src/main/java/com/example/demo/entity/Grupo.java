@@ -34,6 +34,7 @@ public class Grupo {
     private boolean activado;
     private boolean borrado;
     
+    
     @OneToMany(mappedBy = "grupo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UsuarioGrupo> usuarios;
 }

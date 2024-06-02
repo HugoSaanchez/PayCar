@@ -1,6 +1,8 @@
 package com.example.demo.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -81,5 +83,40 @@ public class GrupoServiceImpl implements GrupoService {
 	  public Optional<UsuarioGrupo> obtenerRolYNombrePorUsuarioYGrupo(int usuarioId, int grupoId) {
 	        return usuarioGrupoRepository.findByUsuarioIdAndGrupoId(usuarioId, grupoId);
 	    }
+	 
+	 @Override
+	  public Grupo actualizarGrupo(Grupo grupo) {
+	        return grupoRepository.save(grupo);
+	    }
+	 @Override
+	    public void actualizarUsuarioGrupo(UsuarioGrupo usuarioGrupo) {
+	        usuarioGrupoRepository.save(usuarioGrupo);
+	    }
+	 @Override
+	 public Map<String, Float> calcularDiferenciaCoste(int grupoId) {
+	     Grupo grupo = obtenerGrupoPorId(grupoId);
+	     if (grupo == null) {
+	         return null;
+	     }
+	     
+	     Map<String, Float> diferencias = new HashMap<>();
+	     for (UsuarioGrupo usuarioGrupo : grupo.getUsuarios()) {
+	         float diferencia;
+	         if ("conductor".equals(usuarioGrupo.getRol())) {
+	             diferencia = usuarioGrupo.getCostetotal() - usuarioGrupo.getCostepagado();
+	         } else {
+	             diferencia = usuarioGrupo.getCostepagado() - usuarioGrupo.getCostetotal();
+	         }
+	         diferencias.put(usuarioGrupo.getUsuario().getNombre(), diferencia);
+	     }
+	     
+	     return diferencias;
+	 }
+	 
+	 @Override
+	 public Invitacion obtenerInvitacionPorGrupoId(int grupoId) {
+		    return invitacionRepository.findByGrupoId(grupoId);
+		}
+
 
 }
