@@ -24,6 +24,8 @@ public class Comentario {
 
 
 	private String comentario;
+	@ManyToOne
+    private Grupo grupo;  
 	
 	public Comentario(Usuario pasajero, String comentario, Usuario conductor) {
 	    this.pasajero = pasajero;
