@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk as build
-COPY . /app
-WORKDIR /app
+COPY . PayCar/app
+WORKDIR PayCar/app
 RUN chmod +x mvnw && ./mvnw package -DskipTests
 RUN mv -f target/*.jar app.jar
 
