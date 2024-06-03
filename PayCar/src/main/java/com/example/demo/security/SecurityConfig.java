@@ -1,4 +1,3 @@
-
 package com.example.demo.security;
 
 import java.io.IOException;
@@ -24,57 +23,58 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	 @Order(1)
-	 @Bean
-	    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-	        http
-	            .csrf().disable()
-	            .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-	            .authorizeHttpRequests()
-	            .requestMatchers(new AntPathRequestMatcher("/api/login"), new AntPathRequestMatcher("/api/register")).permitAll()
-	            .requestMatchers("/api/**").authenticated()
-	            .and()
-	            .formLogin().disable();
-	        return http.build();
-	    }
-	
-	@Order(2)
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.authorizeHttpRequests((requests) -> requests
-				.requestMatchers("/", "/imgs/**", "/auth/**", "/webjars/**", "/css/**", "/files/**", "/error/**",
-						"/logout/**", "/index/")
-				.permitAll().requestMatchers("/admin/**").hasAuthority("ROL_ADMIN"))
-				.formLogin((form) -> form
-						//
-						.loginPage("/auth/login").successHandler(new AuthenticationSuccessHandler() {
-							@Override
-							public void onAuthenticationSuccess(HttpServletRequest request,
-									HttpServletResponse response, Authentication authentication)
-									throws IOException, ServletException {
-								Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
-								if (roles.contains("ROL_ADMIN")) {
-									response.sendRedirect("/admin/usuario");
-									System.out.println("Roles del alumnosdas: " + roles);
-								} 
-							}
-						}).permitAll())
-				.logout((logout) -> logout.permitAll().logoutUrl("/logout").logoutSuccessUrl("/index/"));
-		
-		
-		return http.build();
-	}
 
-	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-			throws Exception {
-		return authenticationConfiguration.getAuthenticationManager();
-	}
-	
+    @Bean
+    @Order(1)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf().disable()
+            .securityMatcher(new AntPathRequestMatcher("/api/**"))
+            .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .authorizeHttpRequests()
+                .requestMatchers("/api/login", "/api/register").permitAll()
+                .anyRequest().authenticated()
+            .and()
+            .formLogin().disable();
+        return http.build();
+    }
 
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests()
+                .requestMatchers("/", "/imgs/**", "/auth/**", "/webjars/**", "/css/**", "/files/**", "/error/**", "/logout/**", "/index/").permitAll()
+                .requestMatchers("/admin/**").hasAuthority("ROL_ADMIN")
+                .anyRequest().authenticated()
+            .and()
+            .formLogin()
+                .loginPage("/auth/login")
+                .successHandler(new AuthenticationSuccessHandler() {
+                    @Override
+                    public void onAuthenticationSuccess(HttpServletRequest request,
+                                                        HttpServletResponse response,
+                                                        Authentication authentication) throws IOException, ServletException {
+                        Set<String> roles = AuthorityUtils.authorityListToSet(authentication.getAuthorities());
+                        if (roles.contains("ROL_ADMIN")) {
+                            response.sendRedirect("/admin/usuario");
+                        }
+                    }
+                })
+                .permitAll()
+            .and()
+            .logout()
+                .permitAll()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/index/");
+        return http.build();
+    }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 }
