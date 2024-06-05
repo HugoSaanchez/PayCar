@@ -2,142 +2,206 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<title>Lista de Usuarios</title>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-	<link rel="stylesheet" href="/css/Admin/usuario.css">
+    <meta charset="UTF-8">
+    <title>Lista de Usuarios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/Admin/usuario.css">
+    <style>
+        .star-rating {
+            display: flex;
+            direction: row;
+        }
+
+        .star-rating .fa-star {
+            color: gold;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination .page-link {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination .page-link.active {
+            background-color: #0056b3;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 
 <body>
-	<div th:insert="~{layout/main_layout.html}"></div>
+    <div th:insert="~{layout/main_layout.html}"></div>
 
-	<div class="table-container">
-		<div class="select-container">
-			<form action="/admin/usuario" method="get">
-				<label for="filtroOrdenado">Activado/Desactivado</label>
-				<select id="filtroEstado" name="estado" onchange="this.form.submit()">
-					<option value="todos" th:selected="${estado == 'todos' || estado == null}">Todos</option>
-					<option value="activados" th:selected="${estado == 'activados'}">Activados</option>
-					<option value="desactivados" th:selected="${estado == 'desactivados'}">Desactivados</option>
-				</select>
-				<label for="filtroOrdenado">Ordenar valoración</label>
-				<select id="filtroOrdenado" name="ordenado" onchange="this.form.submit()">
-					<option value="sinFiltro" th:selected="${ordenado == 'sinFiltro' || Ordenado == null}">Sin Filtro
-					</option>
-					<option value="mayorMenor" th:selected="${ordenado == 'mayorMenor'}">Mayor a Menor</option>
-					<option value="menorMayor" th:selected="${ordenado == 'menorMayor'}">Menor a Mayor</option>
-				</select>
+    <div class="table-container">
+        <div class="select-container">
+            <form action="/admin/usuario" method="get">
+                <label for="filtroEstado">Activado/Desactivado</label>
+                <select id="filtroEstado" name="estado" onchange="this.form.submit()">
+                    <option value="todos" th:selected="${estado == 'todos' || estado == null}">Todos</option>
+                    <option value="activados" th:selected="${estado == 'activados'}">Activados</option>
+                    <option value="desactivados" th:selected="${estado == 'desactivados'}">Desactivados</option>
+                </select>
+                <label for="filtroOrdenado">Ordenar valoración</label>
+                <select id="filtroOrdenado" name="ordenado" onchange="this.form.submit()">
+                    <option value="sinFiltro" th:selected="${ordenado == 'sinFiltro' || ordenado == null}">Sin Filtro</option>
+                    <option value="mayorMenor" th:selected="${ordenado == 'mayorMenor'}">Mayor a Menor</option>
+                    <option value="menorMayor" th:selected="${ordenado == 'menorMayor'}">Menor a Mayor</option>
+                </select>
+            </form>
+        </div>
 
-			</form>
-		</div>
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo Electrónico</th>
+                <th>Media Valoracion</th>
+                <th>Comentarios</th>
+                <th>Activado</th>
+                <th>Acciones</th>
+            </tr>
 
-		<table>
-			<tr>
-				<th>Nombre</th>
-				<th>Correo Electrónico</th>
-				<th>Media Valoracion</th>
-				<th>Comentarios</th>
-				<th>Activado</th>
-				<th>Acciones</th>
-			</tr>
+            <tr th:each="usuario : ${usuarios}" th:unless="${usuario.borrado}">
+                <td th:text="${usuario.nombre}"></td>
+                <td th:text="${usuario.username}"></td>
+                <td>
+                    <div class="star-rating">
+                        <span th:if="${valoraciones[usuario.username] != null && T(java.lang.Double).parseDouble(valoraciones[usuario.username]) != 0.00}"
+                              th:each="i : ${#numbers.sequence(1, T(java.lang.Math).round(T(java.lang.Double).parseDouble(valoraciones[usuario.username])))}"
+                              class="fa fa-star"></span>
+                        <span th:if="${valoraciones[usuario.username] == null || T(java.lang.Double).parseDouble(valoraciones[usuario.username]) == 0.00}">No hay valoración</span>
+                        <span th:if="${valoraciones[usuario.username] != null && T(java.lang.Double).parseDouble(valoraciones[usuario.username]) != 0.00}"
+                              th:each="i : ${#numbers.sequence(T(java.lang.Math).round(T(java.lang.Double).parseDouble(valoraciones[usuario.username])) + 1, 5)}"
+                              class="fa fa-star-o"></span>
+                    </div>
+                </td>
+                <td>
+                    <a th:href="@{'/admin/comentarios/conductor/' + ${usuario.id}}">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#comentariosModal">
+                            <span class="fa fa-comment"></span>
+                        </button>
+                    </a>
+                </td>
+                <td>
+                    <span class="icono-estado">
+                        <span th:if="${usuario.activado}" class="fa fa-circle" style="color: green;"></span>
+                        <span th:unless="${usuario.activado}" class="fa fa-circle-o" style="color: red;"></span>
+                    </span>
+                </td>
+                <td>
+                    <form th:action="@{/admin/activar/{id}(id=${usuario.id})}" method="post" style="display: inline;">
+                        <button type="submit" th:if="${usuario.activado}" title="Desactivar" style="background: none; border: none;">
+                            <span class="fa fa-toggle-on" style="color: green;"></span>
+                        </button>
+                        <button type="submit" th:unless="${usuario.activado}" title="Activar" style="background: none; border: none;">
+                            <span class="fa fa-toggle-off" style="color: red;"></span>
+                        </button>
+                    </form>
+                    <form th:action="@{borrar/{id}(id=${usuario.id})}" method="post" style="display: inline;" onsubmit="return confirmDelete();">
+                        <button type="submit" title="Borrar" style="background: none; border: none;">
+                            <span class="fa fa-trash" style="color: red;"></span>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-			<tr th:each="usuario : ${usuarios}" th:unless="${usuario.borrado}">
-				<td th:text="${usuario.nombre}"></td>
-				<td th:text="${usuario.username}"></td>
-				<td>
-					<span th:text="${__${'mediaValoracionUsuario_' + usuario.id}__}"></span>
-					<span class="fa fa-star"></span>
-				</td>
+    <div class="modal fade" id="comentariosModal" tabindex="-1" role="dialog" aria-labelledby="comentariosModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="comentariosModalLabel">Comentarios</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul>
+                        <li th:each="comentario : ${comentarios}" th:text="${comentario.comentario}"></li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-				<td>
-					<a th:href="@{'/admin/comentarios/conductor/' + ${usuario.id}}">
-						<button type="button" class="btn btn-primary" data-toggle="modal"
-							data-target="#comentariosModal">
-							<span class="fa fa-comment"></span>
-						</button>
-					</a>
+    <script>
+        window.onload = function () {
+            var urlParams = new URLSearchParams(window.location.search);
 
-				</td>
+            var filtroEstado = document.getElementById('filtroEstado');
+            if (filtroEstado) {
+                filtroEstado.value = urlParams.get('estado') || 'todos';
+            }
 
+            var filtroOrdenado = document.getElementById('filtroOrdenado');
+            if (filtroOrdenado) {
+                filtroOrdenado.value = urlParams.get('ordenado') || 'sinFiltro';
+            }
+        };
 
-				<td>
-					<span class="icono-estado">
-						<span th:if="${usuario.activado}" class="fa fa-circle" style="color: green;"></span>
-						<span th:unless="${usuario.activado}" class="fa fa-circle-o" style="color: red;"></span>
-					</span>
-				</td>
+        function confirmDelete() {
+            return confirm('¿Estás seguro de que quieres eliminar este usuario?');
+        }
 
-				<td>
-					<form th:action="@{/admin/activar/{id}(id=${usuario.id})}" method="post" style="display: inline;">
-						<button type="submit" th:if="${usuario.activado}" title="Desactivar"
-							style="background: none; border: none;">
-							<span class="fa fa-toggle-on" style="color: green;"></span>
-						</button>
-						<button type="submit" th:unless="${usuario.activado}" title="Activar"
-							style="background: none; border: none;">
-							<span class="fa fa-toggle-off" style="color: red;"></span>
-						</button>
-					</form>
-					<form th:action="@{borrar/{id}(id=${usuario.id})}" method="post" style="display: inline;">
-						<button type="submit" title="Borrar" style="background: none; border: none;">
-							<span class="fa fa-trash" style="color: red;"></span>
-						</button>
-					</form>
-				</td>
-			</tr>
-		</table>
-	</div>
+        function cargarComentarios(idUsuario) {
+            var comentariosContainer = document.getElementById('comentariosContainer');
+            comentariosContainer.innerHTML = 'Aquí van los comentarios del usuario con ID ' + idUsuario;
+        }
 
-	<div class="modal fade" id="comentariosModal" tabindex="-1" role="dialog" aria-labelledby="comentariosModalLabel"
-		aria-hidden="true">
-		<!-- Estructura del modal aquí -->
-		<div class="modal-dialog" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="comentariosModalLabel">Comentarios</h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<!-- Mostrar los comentarios aquí -->
-					<ul>
-						<li th:each="comentario : ${comentarios}" th:text="${comentario.comentario}"></li>
-					</ul>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-				</div>
-			</div>
-		</div>
-	</div>
+        document.addEventListener('DOMContentLoaded', function () {
+            var rowsPerPage = 5; // Número de filas por página
+            var rows = document.querySelectorAll('tbody tr');
+            var rowsCount = rows.length;
+            var pageCount = Math.ceil(rowsCount / rowsPerPage);
+            var pagination = document.createElement('div');
+            pagination.classList.add('pagination');
 
-	<script>
-		window.onload = function () {
-			var urlParams = new URLSearchParams(window.location.search);
+            for (var i = 1; i <= pageCount; i++) {
+                var page = document.createElement('button');
+                page.innerText = i;
+                page.classList.add('page-link');
+                if (i === 1) {
+                    page.classList.add('active');
+                }
+                page.addEventListener('click', function (e) {
+                    var currentPage = parseInt(e.target.innerText);
+                    var start = (currentPage - 1) * rowsPerPage;
+                    var end = start + rowsPerPage;
+                    rows.forEach(function (row, index) {
+                        row.style.display = (index >= start && index < end) ? '' : 'none';
+                    });
+                    document.querySelectorAll('.page-link').forEach(function (link) {
+                        link.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                });
+                pagination.appendChild(page);
+            }
 
-			// Asegúrate de que el ID 'filtroEstado' exista en tu select de estado.
-			var filtroEstado = document.getElementById('filtroEstado');
-			if (filtroEstado) {
-				filtroEstado.value = urlParams.get('estado') || 'todos'; // Usa 'todos' como valor predeterminado.
-			}
+            rows.forEach(function (row, index) {
+                row.style.display = (index < rowsPerPage) ? '' : 'none';
+            });
 
-			var filtroOrdenado = document.getElementById('filtroOrdenado');
-			if (filtroOrdenado) {
-				filtroOrdenado.value = urlParams.get('ordenado') || 'sinFiltro'; // Usa 'todos' como valor predeterminado.
-			}
-		};
-
-		function cargarComentarios(idUsuario) {
-			// Aquí puedes realizar una solicitud AJAX para obtener los comentarios del usuario con el ID proporcionado
-			// Por simplicidad, aquí simplemente agregaremos texto de ejemplo al contenedor de comentarios
-			var comentariosContainer = document.getElementById('comentariosContainer');
-			comentariosContainer.innerHTML = 'Aquí van los comentarios del usuario con ID ' + idUsuario;
-		}
-	</script>
+            document.querySelector('.table-container').appendChild(pagination);
+        });
+    </script>
 
 </body>
-
 </html>

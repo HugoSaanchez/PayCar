@@ -28,6 +28,7 @@ import com.example.demo.entity.Grupo;
 import com.example.demo.entity.Usuario;
 import com.example.demo.entity.UsuarioGrupo;
 import com.example.demo.entity.Valoracion;
+import com.example.demo.entityDTO.ComentarioDTO;
 import com.example.demo.model.UsuarioModel;
 import com.example.demo.repository.ComentarioRepository;
 import com.example.demo.repository.UsuarioGrupoRepository;
@@ -368,7 +369,41 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
 		        return estadisticas;
 		    }
+		 
+		 
+		 @Override
+		 public double obtenerMediaValoracionUsuario(int usuarioId) {
+		     Usuario usuario = usuarioRepository.findById(usuarioId);
+		     if (usuario == null) {
+		         return 0.0;
+		     }
 
+		     List<Valoracion> valoraciones = valoracionRepository.findByConductor(usuario);
+		 
+		  
+		     return valoraciones.stream()
+		                        .mapToInt(Valoracion::getValoracion)
+		                        .average()
+		                        .orElse(0.0);
+		 }
+
+		 @Override
+		    public List<ComentarioDTO> obtenerComentariosParaConductor(int conductorId) {
+		        List<Comentario> comentarios = comentarioRepository.findByConductorId(conductorId);
+		        return comentarios.stream()
+		                .map(comentario -> new ComentarioDTO(comentario.getComentario(), comentario.getPasajero().getNombre()))
+		                .collect(Collectors.toList());
+		    }
+		 
+		 
+		    @Override
+		    public double obtenerMediaValoracionParaConductor(int conductorId) {
+		        List<Valoracion> valoraciones = valoracionRepository.findByConductorIdList(conductorId);
+		        return valoraciones.stream()
+		                .mapToInt(Valoracion::getValoracion)
+		                .average()
+		                .orElse(0.0);
+		    }
 
 
 

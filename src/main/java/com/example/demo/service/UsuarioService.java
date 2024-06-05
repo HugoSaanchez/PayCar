@@ -2,12 +2,14 @@ package com.example.demo.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 
 import org.springframework.http.ResponseEntity;
 
 import com.example.demo.entity.Comentario;
 import com.example.demo.entity.Usuario;
 import com.example.demo.entity.Valoracion;
+import com.example.demo.entityDTO.ComentarioDTO;
 import com.example.demo.model.UsuarioModel;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,4 +45,7 @@ public interface UsuarioService {
 	 public Comentario obtenerComentario(Usuario pasajero, Usuario conductor, int idGrupo);
 	 public void borrarAmigo(int idUsuario, int idAmigo);
 	 public Map<String, Object> obtenerEstadisticasUsuario(int idUsuario);
+	 public double obtenerMediaValoracionUsuario(int usuarioId);
+	  public List<ComentarioDTO> obtenerComentariosParaConductor(int conductorId);
+	  public double obtenerMediaValoracionParaConductor(int conductorId);
 }
