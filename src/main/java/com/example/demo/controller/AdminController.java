@@ -1,8 +1,9 @@
 package com.example.demo.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.hibernate.internal.build.AllowSysOut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,34 +32,43 @@ public class AdminController {
 
 	@GetMapping("/usuario")
 	public String mainLayout(@RequestParam(value = "estado", defaultValue = "todos") String estado,
-			@RequestParam(value = "ordenado", defaultValue = "sinFiltro") String ordenado, Model model) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String email = authentication.getName();
-		String username = usuarioService.findUsernameByEmail(email);
+	                         @RequestParam(value = "ordenado", defaultValue = "sinFiltro") String ordenado,
+	                         Model model) {
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String email = authentication.getName();
+	    String username = usuarioService.findUsernameByEmail(email);
 
-		List<Usuario> usuarios;
-		if ("activados".equals(estado)) {
-			usuarios = adminService.findByEstado("activados");
-		} else if ("desactivados".equals(estado)) {
-			usuarios = adminService.findByEstado("desactivados");
-		} else {
-			usuarios = adminService.findByRol("ROL_USER");
-		}
+	    List<Usuario> usuarios;
+	    if ("activados".equals(estado)) {
+	        usuarios = adminService.findByEstado("activados");
+	    } else if ("desactivados".equals(estado)) {
+	        usuarios = adminService.findByEstado("desactivados");
+	    } else {
+	        usuarios = adminService.findByRol("ROL_USER");
+	    }
 
-		for (Usuario usuario : usuarios) {
-			double mediaValoracionUsuario = adminService.obtenerMediaValoracionConductor(usuario.getId());
-			System.out.println(mediaValoracionUsuario);
-			String mediaTruncada = String.format("%.2f", mediaValoracionUsuario);
-			model.addAttribute("mediaValoracionUsuario_" + usuario.getId(), mediaTruncada);
+	    Map<String, String> valoraciones = new HashMap<>();
+	    for (Usuario usuario : usuarios) {
+	        double mediaValoracion = usuarioService.obtenerMediaValoracionUsuario(usuario.getId());
+	        String mediaTruncada = String.format("%.2f", mediaValoracion).replace(",", "."); // Reemplazar coma por punto
+	        String userUsername = usuario.getUsername(); // Usar username como clave
+	        valoraciones.put(userUsername, mediaTruncada);
+	    }
 
-		}
+	    usuarios = adminService.ordenarUsuariosPorValoracion(usuarios, ordenado);
 
-		usuarios = adminService.ordenarUsuariosPorValoracion(usuarios, ordenado);
-
-		model.addAttribute("usuario", username);
-		model.addAttribute("usuarios", usuarios);
-		return "admin/usuario";
+	    model.addAttribute("usuario", username);
+	    model.addAttribute("usuarios", usuarios);
+	    model.addAttribute("valoraciones", valoraciones);
+	    System.out.println(valoraciones);
+	    return "/admin/usuario";
 	}
+
+
+
+
+
+
 
 	@PostMapping("/borrar/{id}")
 	public String borrarUsuario(@PathVariable("id") int id) {

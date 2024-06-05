@@ -13,6 +13,6 @@ import com.example.demo.entity.Valoracion;
 public interface ValoracionRepository extends CrudRepository<Valoracion, Integer> {
 	 Iterable<Valoracion> findByConductorId(int conductorId);
 	  List<Valoracion> findByPasajeroAndConductorAndGrupo(Usuario pasajero, Usuario conductor, Grupo grupo);
-
-	
+	 
+	  List<Valoracion> findByConductor(Usuario conductor);
 }
