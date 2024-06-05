@@ -65,6 +65,18 @@ public class MensajeServiceImpl implements MensajeService {
 	            .distinct()
 	            .collect(Collectors.toList());
 	}
-
+	
+	   @Override
+	    public List<UsuarioDTO> obtenerUsuariosEmisoresPorIdReceptor(int idReceptor) {
+	        List<Usuario> emisores = mensajeRepository.findDistinctEmisoresByReceptorId(idReceptor);
+	        return emisores.stream().map(this::convertToDTO).collect(Collectors.toList());
+	    }
+	    private UsuarioDTO convertToDTO(Usuario usuario) {
+	        UsuarioDTO dto = new UsuarioDTO();
+	        dto.setId(usuario.getId());
+	        dto.setNombre(usuario.getNombre());
+	        dto.setUsername(usuario.getUsername());
+	        return dto;
+	    }
 
 }

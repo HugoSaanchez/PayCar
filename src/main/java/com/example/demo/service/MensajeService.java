@@ -13,4 +13,5 @@ public interface MensajeService {
 	    public List<Integer> obtenerIdsReceptoresPorIdEmisor(int idEmisor);
 	    public List<String> obtenerNombresReceptoresPorIdEmisor(int idEmisor);
 	    public List<UsuarioDTO> obtenerUsuariosReceptoresPorIdEmisor(int idEmisor);
+	    List<UsuarioDTO> obtenerUsuariosEmisoresPorIdReceptor(int idReceptor);
 }

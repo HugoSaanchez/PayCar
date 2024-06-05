@@ -12,4 +12,5 @@ import com.example.demo.entity.Invitacion;
 public interface InvitacionRepository  extends JpaRepository<Invitacion, Serializable>{
 	Invitacion findByCodigoInvitacion(String codigoInvitacion);
 	Invitacion findByGrupoId(int grupoId);
+    void deleteByGrupoId(int grupoId);
 }

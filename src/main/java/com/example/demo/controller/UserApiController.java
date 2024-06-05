@@ -24,8 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.Comentario;
 import com.example.demo.entity.Usuario;
 import com.example.demo.entity.Valoracion;
+import com.example.demo.entityDTO.ComentarioDTO;
 import com.example.demo.entityDTO.UsuarioDTO;
+import com.example.demo.entityDTO.ValoracionDTO;
 import com.example.demo.model.UsuarioModel;
+import com.example.demo.service.AdminService;
 import com.example.demo.service.GrupoService;
 import com.example.demo.service.UsuarioService;
 
@@ -38,6 +41,9 @@ public class UserApiController {
 	
 	@Autowired
 	private UsuarioService usuarioService;
+	
+	@Autowired
+	private AdminService adminService;
 	
 	@Autowired
 	private GrupoService grupoService;
@@ -429,5 +435,34 @@ public class UserApiController {
 	        Map<String, Object> estadisticas = usuarioService.obtenerEstadisticasUsuario(usuarioAutenticado.getId());
 	        return ResponseEntity.ok(estadisticas);
 	    }
+	   
+
+	   @GetMapping("/comentarios")
+	    public ResponseEntity<List<ComentarioDTO>> verTodosLosComentarios() {
+	        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	        Usuario conductor = usuarioService.findByUsername(username);
+
+	        if (conductor == null) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        }
+
+	        List<ComentarioDTO> comentarios = usuarioService.obtenerComentariosParaConductor(conductor.getId());
+	        return ResponseEntity.ok(comentarios);
+	    }
+
+	    @GetMapping("/valoraciones")
+	    public ResponseEntity<ValoracionDTO> verMediaValoracionConductor() {
+	        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	        Usuario conductor = usuarioService.findByUsername(username);
+
+	        if (conductor == null) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	        }
+
+	        double mediaValoracion = usuarioService.obtenerMediaValoracionParaConductor(conductor.getId());
+	        ValoracionDTO valoracionDTO = new ValoracionDTO(mediaValoracion);
+	        return ResponseEntity.ok(valoracionDTO);
+	    }
+	 
 
 }
