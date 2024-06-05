@@ -22,5 +22,8 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Serializable> 
 
 
 	    List<Mensaje> findByEmisorId(int emisorId);
+	    
+	    @Query("SELECT DISTINCT m.emisor FROM Mensaje m WHERE m.receptor.id = :idReceptor")
+	    List<Usuario> findDistinctEmisoresByReceptorId(int idReceptor);
 	
 }
