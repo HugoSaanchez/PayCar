@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,20 +28,53 @@ public class GrupoController {
 	@Autowired
 	private UsuarioService usuarioService;
 
-    @GetMapping("/grupo")
-    public String obtenerGrupos(@RequestParam(required = false, name = "grupoId") Integer grupoId, Model model) {
-    	 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-   	    String email = authentication.getName();
-   	    String username = usuarioService.findUsernameByEmail(email);
-    	if (grupoId != null) {
-            List<UsuarioGrupo> usuariosGrupo = grupoService.obtenerUsuariosPorGrupoId(grupoId);
-            System.out.println(usuariosGrupo);
-            model.addAttribute("usuariosGrupo", usuariosGrupo);
-        }
+	@GetMapping("/grupo")
+	public String obtenerGrupos(
+	    @RequestParam(value = "estado", defaultValue = "todos") String estado,
+	    @RequestParam(required = false, name = "grupoId") Integer grupoId,
+	    Model model) {
 
-        List<Grupo> grupos = grupoService.obtenerGrupos();
-        model.addAttribute("grupos", grupos);
-        model.addAttribute("usuario", username);
-        return "admin/grupo"; // Nombre de la vista donde mostrar los grupos
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String email = authentication.getName();
+	    String username = usuarioService.findUsernameByEmail(email);
+
+	    if (grupoId != null) {
+	        List<UsuarioGrupo> usuariosGrupo = grupoService.obtenerUsuariosPorGrupoId(grupoId);
+	        System.out.println(usuariosGrupo);
+	        model.addAttribute("usuariosGrupo", usuariosGrupo);
+	    }
+
+	    List<Grupo> grupos;
+	    if ("activados".equals(estado)) {
+	        grupos = grupoService.findByEstado("activados");
+	    } else if ("desactivados".equals(estado)) {
+	        grupos = grupoService.findByEstado("desactivados");
+	    } else {
+	        grupos = grupoService.obtenerGrupos();
+	    }
+
+	    model.addAttribute("grupos", grupos);
+	    model.addAttribute("usuario", username);
+	    model.addAttribute("estado", estado);
+	    return "admin/grupo"; // Nombre de la vista donde mostrar los grupos
+	}
+
+    
+    @PostMapping("/grupo/activar/{id}")
+    public String activarGrupo(@PathVariable("id") int grupoId) {
+        grupoService.activarGrupo(grupoId);
+        return "redirect:/admin/grupo";
+    }
+
+    @PostMapping("/grupo/desactivar/{id}")
+    public String desactivarGrupo(@PathVariable("id") int grupoId) {
+        grupoService.desactivarGrupo(grupoId);
+        return "redirect:/admin/grupo";
+    }
+    
+    @PostMapping("/grupo/borrar/{id}")
+    public String borrarGrupo(@PathVariable("id") int id) {
+        grupoService.borrarGrupo(id);
+        return "redirect:/admin/grupo";
     }
 }

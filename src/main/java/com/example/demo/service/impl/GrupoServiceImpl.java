@@ -19,6 +19,8 @@ import com.example.demo.repository.InvitacionRepository;
 import com.example.demo.repository.UsuarioGrupoRepository;
 import com.example.demo.service.GrupoService;
 
+import jakarta.transaction.Transactional;
+
 @Service("grupoService")
 public class GrupoServiceImpl implements GrupoService {
 	
@@ -116,6 +118,38 @@ public class GrupoServiceImpl implements GrupoService {
 	 @Override
 	 public Invitacion obtenerInvitacionPorGrupoId(int grupoId) {
 		    return invitacionRepository.findByGrupoId(grupoId);
+		}
+	 
+	 @Override
+	 public void activarGrupo(int grupoId) {
+	        Grupo grupo = grupoRepository.findById(grupoId).orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+	        grupo.setActivado(true);
+	        grupoRepository.save(grupo);
+	    }
+	 @Override
+	    public void desactivarGrupo(int grupoId) {
+	        Grupo grupo = grupoRepository.findById(grupoId).orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+	        grupo.setActivado(false);
+	        grupoRepository.save(grupo);
+	    }
+	 	@Override
+	 	@Transactional
+	    public void borrarGrupo(int id) {
+	        // Eliminar todas las invitaciones asociadas al grupo
+	        invitacionRepository.deleteByGrupoId(id);
+	        
+	        // Eliminar el grupo
+	        grupoRepository.deleteById(id);
+	    }
+		@Override
+		public List<Grupo> findByEstado(String estado) {
+			if ("activados".equals(estado)) {
+				return grupoRepository.findByActivado(true);
+			} else if ("desactivados".equals(estado)) {
+				return grupoRepository.findByActivado(false);
+			}
+			return null; 
+
 		}
 
 

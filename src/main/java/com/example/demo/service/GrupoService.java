@@ -26,5 +26,10 @@ public interface GrupoService {
     public void actualizarUsuarioGrupo(UsuarioGrupo usuarioGrupo);
     public Map<String, Float> calcularDiferenciaCoste(int grupoId);
    public Invitacion obtenerInvitacionPorGrupoId(int grupoId);
+   public void activarGrupo(int grupoId);
+   public void desactivarGrupo(int grupoId);
+   public void borrarGrupo(int id);
+   
+	public abstract List<Grupo> findByEstado(String rol);
        
 }
