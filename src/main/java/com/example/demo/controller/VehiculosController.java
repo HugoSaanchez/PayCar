@@ -34,5 +34,6 @@ public class VehiculosController {
 	    model.addAttribute("usuario", username);
         return "admin/coches"; // Nombre de la vista que mostrará los datos
     }
+    
 
 }

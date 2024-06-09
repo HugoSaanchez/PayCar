@@ -61,7 +61,7 @@ public class AdminController {
 	    model.addAttribute("usuarios", usuarios);
 	    model.addAttribute("valoraciones", valoraciones);
 	    System.out.println(valoraciones);
-	    return "/admin/usuario";
+	    return "admin/usuario";
 	}
 
 
