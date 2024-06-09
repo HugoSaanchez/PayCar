@@ -198,11 +198,25 @@
                     <p>Consumo de Gasolina: <span th:text="${grupo.consumoGasolina}"></span></p>
                     <p>Kilómetros Recorridos: <span th:text="${grupo.kilometrosRecorridos}"></span></p>
                     <p>Dinero Gasolina: <span th:text="${grupo.dineroGasolina}"></span></p>
+                    <p>Costo Total del Viaje: <span th:text="${(grupo.kilometrosRecorridos * grupo.consumoGasolina / 100) * grupo.dineroGasolina}"></span></p>
                     <hr>
                     <h4>Usuarios en el Grupo:</h4>
-                    <div th:each="usuarioGrupo : ${grupo.usuarios}">
-                        <p><span th:text="${usuarioGrupo.usuario.nombre}"></span></p>
-                        <p><span th:text="${usuarioGrupo.rol}"></span></p>
+                    <div>
+                        <h5>Conductor</h5>
+                        <div th:each="usuarioGrupo : ${grupo.usuarios}">
+                            <p th:if="${usuarioGrupo.rol == 'conductor'}">
+                                <span th:text="${usuarioGrupo.usuario.nombre}"></span> 
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <h5>Pasajeros</h5>
+                        <div th:each="usuarioGrupo : ${grupo.usuarios}">
+                            <p th:if="${usuarioGrupo.rol == 'pasajero'}">
+                                <span th:text="${usuarioGrupo.usuario.nombre}"></span> 
+                                
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -218,7 +232,7 @@
 
     <!-- Paginación -->
     <script>
-		window.onload = function () {
+        window.onload = function () {
             var urlParams = new URLSearchParams(window.location.search);
 
             var filtroEstado = document.getElementById('filtroEstado');
@@ -231,6 +245,7 @@
                 filtroOrdenado.value = urlParams.get('ordenado') || 'sinFiltro';
             }
         };
+
         document.addEventListener('DOMContentLoaded', function () {
             var rowsPerPage = 5; // Número de filas por página
             var rows = document.querySelectorAll('tbody tr');

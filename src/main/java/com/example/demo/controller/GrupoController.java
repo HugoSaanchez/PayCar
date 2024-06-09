@@ -61,6 +61,7 @@ public class GrupoController {
 	    return "admin/grupo"; // Nombre de la vista donde mostrar los grupos
 	}
 
+
     
     @PostMapping("/grupo/activar/{id}")
     public String activarGrupo(@PathVariable("id") int grupoId) {

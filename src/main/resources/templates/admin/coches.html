@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Vehículos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            background-color: #555;
+            color: white;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90vw;
+            margin-top: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            font-size: 18px;
+            color: white;
+        }
+
+        th {
+            background-color: #333;
+        }
+
+        tr:nth-child(even) {
+            background-color: #444;
+        }
+
+        .modal-content {
+            background-color: #333;
+            color: white;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #ddd;
+            padding: 15px;
+            background-color: #333;
+        }
+
+        .modal-title {
+            color: white;
+        }
+
+        .modal-body {
+            padding: 15px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            background-color: #333;
+        }
+
+        .btn-info {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-info:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .fa-circle.green {
+            color: green;
+        }
+
+        .fa-circle.red {
+            color: red;
+        }
+
+        .fa-circle-o {
+            color: transparent;
+        }
+
+        .more-info-btn {
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination .page-link {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .pagination .page-link.active {
+            background-color: #0056b3;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:insert="~{layout/main_layout.html}"></div>
+    <div class="container">
+        <h2>Lista de Vehículos</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Marca</th>
+                    <th>Año</th>
+                    <th>Modelo</th>
+                    <th>Versión</th>
+                    <th>Mixto</th>
+                    <th>Alquilado</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Usuario</th>
+                </tr>
+            </thead>
+            <tbody id="vehiculosTableBody">
+                <tr th:each="vehiculo : ${datosVehiculos}">
+                    <td th:text="${vehiculo.marca}"></td>
+                    <td th:text="${vehiculo.anio}"></td>
+                    <td th:text="${vehiculo.modelo}"></td>
+                    <td th:text="${vehiculo.version}"></td>
+                    <td th:text="${vehiculo.mixto}"></td>
+                    <td th:text="${vehiculo.alquilado ? 'Sí' : 'No'}"></td>
+                    <td th:text="${vehiculo.fecha_inicio}"></td>
+                    <td th:text="${vehiculo.fecha_fin}"></td>
+                    <td th:text="${vehiculo.usuario != null ? vehiculo.usuario.nombre : 'N/A'}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Paginación -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var rowsPerPage = 5; // Número de filas por página
+            var rows = document.querySelectorAll('tbody tr');
+            var rowsCount = rows.length;
+            var pageCount = Math.ceil(rowsCount / rowsPerPage);
+            var maxVisiblePages = 10; // Máximo número de botones de paginación visibles
+            var pagination = document.createElement('div');
+            pagination.classList.add('pagination');
+
+            function showPage(page) {
+                var start = (page - 1) * rowsPerPage;
+                var end = start + rowsPerPage;
+                rows.forEach(function (row, index) {
+                    row.style.display = (index >= start && index < end) ? '' : 'none';
+                });
+
+                var pageLinks = pagination.querySelectorAll('.page-link');
+                pageLinks.forEach(function (link, index) {
+                    if (index === page - 1) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+
+                updatePagination(page);
+            }
+
+            function updatePagination(currentPage) {
+                while (pagination.firstChild) {
+                    pagination.removeChild(pagination.firstChild);
+                }
+
+                var startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                var endPage = Math.min(pageCount, startPage + maxVisiblePages - 1);
+
+                if (startPage > 1) {
+                    var firstPageLink = createPageLink(1);
+                    pagination.appendChild(firstPageLink);
+                    var dots = document.createElement('span');
+                    dots.innerText = '...';
+                    pagination.appendChild(dots);
+                }
+
+                for (var i = startPage; i <= endPage; i++) {
+                    var pageLink = createPageLink(i);
+                    pagination.appendChild(pageLink);
+                }
+
+                if (endPage < pageCount) {
+                    var dots = document.createElement('span');
+                    dots.innerText = '...';
+                    pagination.appendChild(dots);
+                    var lastPageLink = createPageLink(pageCount);
+                    pagination.appendChild(lastPageLink);
+                }
+            }
+
+            function createPageLink(page) {
+                var pageLink = document.createElement('button');
+                pageLink.innerText = page;
+                pageLink.classList.add('page-link');
+                pageLink.addEventListener('click', function () {
+                    showPage(page);
+                });
+                return pageLink;
+            }
+
+            showPage(1);
+            document.querySelector('.container').appendChild(pagination);
+        });
+    </script>
+</body>
+
+</html>

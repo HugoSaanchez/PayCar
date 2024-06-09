@@ -116,6 +116,10 @@ public class DatosVehiculosServiceImpl implements DatosVehiculosService {
         return datosVehiculosRepository.findByUsuario(usuario);
     }
     
+    @Override
+    public List<DatosVehiculos> getAllDatosVehiculos() {
+        return datosVehiculosRepository.findAll();
+    }
    
 
     

@@ -16,4 +16,5 @@ public interface DatosVehiculosService {
     public Map<String, Object> getAlquiladoByMarcaAnioModeloAndVersion(String marca, int anio, String modelo, String version);
     public boolean alquilarVehiculo(String marca, int anio, String modelo, String version, String fechaInicio, String fechaFin, Usuario usuario);
     public List<DatosVehiculos> getVehiculosAlquiladosPorUsuario(Usuario usuario);
+    public List<DatosVehiculos> getAllDatosVehiculos();
 }
