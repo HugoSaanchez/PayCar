@@ -32,9 +32,6 @@ body {
 	/* Oculta el contenido que excede el área visible */
 }
 
-
-
-
 .navbar ul {
 	list-style-type: none;
 	/* Quita los puntos de lista */
@@ -103,6 +100,13 @@ body {
 }
 
 .logout-icon {
+	color: lightgreen; /* Color verde */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
 
-    color: lightgreen; /* Color verde */
+.logout-icon i {
+	font-size: 20px; /* Asegura un tamaño constante del icono */
+	color: white;
 }

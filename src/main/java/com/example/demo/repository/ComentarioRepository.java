@@ -17,4 +17,5 @@ public interface ComentarioRepository extends CrudRepository<Comentario, Integer
 	 List<Comentario> findByPasajeroAndConductorAndGrupo(Usuario pasajero, Usuario conductor, Grupo grupo);
 
 	 List<Comentario> findByConductorId(int conductorId);
+	    void deleteByGrupoId(int grupoId);
 }

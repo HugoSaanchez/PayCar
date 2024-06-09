@@ -21,5 +21,7 @@ public interface ValoracionRepository extends CrudRepository<Valoracion, Integer
 
 	  @Query("SELECT v FROM Valoracion v WHERE v.conductor.id = :conductorId")
 	    List<Valoracion> findByConductorIdList(int conductorId);
+	  
+	  void deleteByGrupoId(int grupoId);
 
 }

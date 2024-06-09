@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -73,8 +75,15 @@ public class GrupoController {
     }
     
     @PostMapping("/grupo/borrar/{id}")
-    public String borrarGrupo(@PathVariable("id") int id) {
-        grupoService.borrarGrupo(id);
-        return "redirect:/admin/grupo";
+    public ResponseEntity<?> borrarGrupo(@PathVariable("id") int id) {
+        try {
+        	
+           // Eliminar comentarios relacionados
+            grupoService.borrarGrupo(id); // Luego eliminar el grupo
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al borrar el grupo: " + e.getMessage());
+        }
     }
+
 }

@@ -16,5 +16,6 @@ public interface UsuarioGrupoRepository  extends JpaRepository<UsuarioGrupo, Ser
 	 List<UsuarioGrupo> findByGrupoId(int grupoId);
 	  Optional<UsuarioGrupo> findByUsuarioIdAndGrupoId(int usuarioId, int grupoId);
 	  List<UsuarioGrupo> findByUsuarioId(int usuarioId);
+	  Optional<UsuarioGrupo> findByUsuarioAndGrupoId(Usuario usuario, int grupoId);
 }
 

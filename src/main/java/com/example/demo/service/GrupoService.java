@@ -29,7 +29,8 @@ public interface GrupoService {
    public void activarGrupo(int grupoId);
    public void desactivarGrupo(int grupoId);
    public void borrarGrupo(int id);
-   
+   void eliminarUsuarioGrupo(UsuarioGrupo usuarioGrupo);
 	public abstract List<Grupo> findByEstado(String rol);
-       
+	 public void eliminarUsuarioDeGrupos(Usuario usuario);
+	 public void salirGrupo(Usuario usuario, int grupoId);
 }

@@ -12,6 +12,7 @@ import com.example.demo.repository.ComentarioRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.repository.ValoracionRepository;
 import com.example.demo.service.AdminService;
+import com.example.demo.service.GrupoService;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -26,6 +27,9 @@ public class AdminServiceImpl implements AdminService {
 	
 	@Autowired
 	private ComentarioRepository comentarioRepository;
+	
+	@Autowired
+	private GrupoService grupoService;
 
 	@Override
 	public List<Usuario> findByRol(String rol) {
@@ -33,22 +37,25 @@ public class AdminServiceImpl implements AdminService {
 
 	}
 
-	@Override
-	public void borrarUsuario(int id) {
-		Usuario usuario = usuarioRepository.findById(id);
+	 @Override
+	    public void borrarUsuario(int id) {
+	        Usuario usuario = usuarioRepository.findById(id);
 
-		// Verificar si se encontró el usuario
-		if (usuario != null) {
-			// Actualizar el campo "borrado" a 1
-			usuario.setBorrado(true);
-			;
-			// Guardar los cambios en la base de datos
-			usuarioRepository.save(usuario);
-		} else {
-			// Manejar el caso en que no se encuentre el usuario
-			throw new EntityNotFoundException("Usuario no encontrado con ID: " + id);
-		}
-	}
+	        // Verificar si se encontró el usuario
+	        if (usuario != null) {
+	            // Eliminar relaciones del usuario con los grupos
+	            grupoService.eliminarUsuarioDeGrupos(usuario);
+
+	            // Actualizar el campo "borrado" a true
+	            usuario.setBorrado(true);
+
+	            // Guardar los cambios en la base de datos
+	            usuarioRepository.save(usuario);
+	        } else {
+	            // Manejar el caso en que no se encuentre el usuario
+	            throw new EntityNotFoundException("Usuario no encontrado con ID: " + id);
+	        }
+	    }
 
 	@Override
 	public void activarUsuario(int id) {

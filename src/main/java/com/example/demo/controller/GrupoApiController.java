@@ -356,6 +356,30 @@ public class GrupoApiController {
         return ResponseEntity.ok(enlaceInvitacion);
     }
 
+    @PostMapping("/grupo/borrar")
+    public ResponseEntity<?> borrarGrupo(@RequestParam int id) {
+        grupoService.borrarGrupo(id);
+        return ResponseEntity.ok().build();
+    }
 
+   
+    
+    @PostMapping("/grupo/salir")
+    public ResponseEntity<?> salirGrupo(@RequestParam int grupoId) {
+        // Obtener el usuario autenticado
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario usuario = usuarioService.findByUsername(username);
+
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado");
+        }
+
+        try {
+            grupoService.salirGrupo(usuario, grupoId);
+            return ResponseEntity.ok().body("Te has salido del grupo exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al salir del grupo: " + e.getMessage());
+        }
+    }
 
 }
