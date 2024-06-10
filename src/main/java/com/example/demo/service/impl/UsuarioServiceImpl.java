@@ -404,6 +404,8 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 		                .average()
 		                .orElse(0.0);
 		    }
+		    
+		    
 
 
 

@@ -232,7 +232,10 @@
                 <button type="button" class="btn btn-primary" onclick="toggleOrdenar()">
                     <i id="ordenarIcon" class="fa fa-sort-amount-desc"></i> Ordenar por consumo
                 </button>
-               
+                <!-- Botón para quitar filtros -->
+                <button type="button" class="btn btn-danger" onclick="resetFilters()">
+                    Quitar Filtros
+                </button>
             </div>
         </form>
         <table class="table table-striped">
@@ -269,7 +272,6 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Paginación -->
     <script>
         window.onload = function () {
             var urlParams = new URLSearchParams(window.location.search);
@@ -409,6 +411,21 @@
                 ordenarInput.value = "mayor";
                 ordenarIcon.className = "fa fa-sort-amount-desc";
             }
+            submitFilterForm();
+        }
+
+        function resetFilters() {
+            // Resetea los checkboxes de marcas
+            document.querySelectorAll('#marcaChecklist input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+            // Activa el primer checkbox de marcas
+            var firstMarcaCheckbox = document.querySelector('#marcaChecklist input[type="checkbox"]');
+            if (firstMarcaCheckbox) {
+                firstMarcaCheckbox.checked = true;
+            }
+
+            // Resetea los checkboxes de usuarios
+            document.querySelectorAll('#usuarioChecklist input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+
             submitFilterForm();
         }
     </script>

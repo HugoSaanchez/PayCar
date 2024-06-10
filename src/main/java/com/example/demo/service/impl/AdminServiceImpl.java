@@ -126,7 +126,8 @@ public class AdminServiceImpl implements AdminService {
         	Usuario conductor = comentario.getConductor();
             Usuario pasajero = comentario.getPasajero();
             String textoComentario = comentario.getComentario();
-            System.out.println("Pasajero: " + pasajero.getNombre() + ", Comentario: " + textoComentario +"Conductor: " + conductor.getNombre());
+           
+            
         }
         return comentarios;
     }

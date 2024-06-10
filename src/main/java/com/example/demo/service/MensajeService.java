@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.demo.entity.Mensaje;
 import com.example.demo.entityDTO.UsuarioDTO;
+import com.example.demo.entityDTO.UsuarioMensajeDTO;
 
 public interface MensajeService {
 	
@@ -14,4 +15,9 @@ public interface MensajeService {
 	    public List<String> obtenerNombresReceptoresPorIdEmisor(int idEmisor);
 	    public List<UsuarioDTO> obtenerUsuariosReceptoresPorIdEmisor(int idEmisor);
 	    List<UsuarioDTO> obtenerUsuariosEmisoresPorIdReceptor(int idReceptor);
+	    public int countUnreadMessages(int idReceptor);
+	  
+
+	    int contarMensajesNoLeidosDeUsuario(int idReceptor, int idEmisor);
+	    public void marcarMensajesComoLeidos(int idEmisor, int idReceptor);
 }

@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,13 +40,18 @@ public class VehiculosController {
                 .collect(Collectors.toList());
 
         if (marcas == null || marcas.isEmpty()) {
-            marcas = new ArrayList<>();
-            marcas.add(todasLasMarcas.get(0)); // Mostrar la primera marca por defecto
+            // Si no hay marcas seleccionadas, selecciona la primera marca de la lista
+            if (!todasLasMarcas.isEmpty()) {
+                marcas = new ArrayList<>();
+                marcas.add(todasLasMarcas.get(0));
+            } else {
+                marcas = new ArrayList<>();
+            }
         }
 
         List<String> finalMarcas = marcas; // Asignar marcas a una variable final
         List<DatosVehiculos> filteredDatosVehiculos = datosVehiculos.stream()
-                .filter(dv -> dv.getMarca() != null && finalMarcas.contains(dv.getMarca()))
+                .filter(dv -> dv.getMarca() != null && (finalMarcas.isEmpty() || finalMarcas.contains(dv.getMarca())))
                 .collect(Collectors.toList());
 
         // Filtrar por consumo de gasolina solo entre los vehículos filtrados por marcas
@@ -56,8 +60,6 @@ public class VehiculosController {
                     .filter(dv -> dv.getMixto() != null && dv.getMixto().equals(consumo))
                     .collect(Collectors.toList());
         }
-
-     
 
         // Filtrar por usuario si se selecciona la opción
         if (usuario != null && !usuario.isEmpty()) {

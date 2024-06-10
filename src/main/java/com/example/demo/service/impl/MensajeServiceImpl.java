@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.Mensaje;
 import com.example.demo.entity.Usuario;
 import com.example.demo.entityDTO.UsuarioDTO;
+import com.example.demo.entityDTO.UsuarioMensajeDTO;
 import com.example.demo.repository.MensajeRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.service.MensajeService;
@@ -77,6 +78,27 @@ public class MensajeServiceImpl implements MensajeService {
 	        dto.setNombre(usuario.getNombre());
 	        dto.setUsername(usuario.getUsername());
 	        return dto;
+	    }
+	    
+	    @Override
+	    public int countUnreadMessages(int idReceptor) {
+	        return mensajeRepository.countUnreadMessagesByReceptorId(idReceptor);
+	    }
+	    
+	   
+	    
+	    @Override
+	    public int contarMensajesNoLeidosDeUsuario(int idReceptor, int idEmisor) {
+	        return mensajeRepository.countUnreadMessagesFromUser(idReceptor, idEmisor);
+	    }
+	    
+	    @Override
+	    public void marcarMensajesComoLeidos(int idEmisor, int idReceptor) {
+	        List<Mensaje> mensajes = mensajeRepository.findByEmisorIdAndReceptorIdAndLeidoFalse(idEmisor, idReceptor);
+	        for (Mensaje mensaje : mensajes) {
+	            mensaje.setLeido(true);
+	        }
+	        mensajeRepository.saveAll(mensajes);
 	    }
 
 }

@@ -178,11 +178,8 @@ public class GrupoApiController {
 	    // Realizar el cálculo del costo del viaje
 	    double costoViaje = (grupo.getKilometrosRecorridos() * (grupo.getConsumoGasolina() / 100) * grupo.getDineroGasolina());
 
-	    System.out.println(costoViaje);
-	    System.out.println(grupo.getKilometrosRecorridos());
-	    System.out.println(grupo.getConsumoGasolina());
-	    System.out.println(grupo.getDineroGasolina());
-	    System.out.println(integrantes);
+	    
+	   
 
 	    // Actualizar el campo 'costetotal' en cada UsuarioGrupo
 	    for (UsuarioGrupo usuarioGrupo : grupo.getUsuarios()) {

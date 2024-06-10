@@ -25,5 +25,16 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Serializable> 
 	    
 	    @Query("SELECT DISTINCT m.emisor FROM Mensaje m WHERE m.receptor.id = :idReceptor")
 	    List<Usuario> findDistinctEmisoresByReceptorId(int idReceptor);
+	    
+	    @Query("SELECT COUNT(m) FROM Mensaje m WHERE m.receptor.id = :receptorId AND m.leido = false")
+	    int countUnreadMessagesByReceptorId(int receptorId);
+	 
+	    
+	    @Query("SELECT COUNT(m) FROM Mensaje m WHERE m.receptor.id = :idReceptor AND m.emisor.id = :idEmisor AND m.leido = false")
+	    int countUnreadMessagesFromUser(int idReceptor, int idEmisor);
+	    
+	    List<Mensaje> findByEmisorIdAndReceptorIdAndLeidoFalse(int emisorId, int receptorId);
+	
+	
 	
 }

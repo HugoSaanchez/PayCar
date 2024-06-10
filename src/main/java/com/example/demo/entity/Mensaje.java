@@ -32,6 +32,7 @@ public class Mensaje {
 
     private String mensaje;
     private LocalDateTime hora;
+    private boolean leido = false;
 
  
 }

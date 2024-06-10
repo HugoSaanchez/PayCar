@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,8 @@ public class ChatController {
 	            @RequestParam("mensaje") String mensaje) {
 		   String username = SecurityContextHolder.getContext().getAuthentication().getName();
 		   
-		   System.out.println(username);
+		
+		   
 		    Usuario usuario = usuarioService.findByUsername(username);
 	
 		    if(usuario!=null) {
@@ -83,11 +85,42 @@ public class ChatController {
 	     Usuario usuarioAutenticado = usuarioService.findByUsername(username);
 
 	     List<UsuarioDTO> usuarios = mensajeService.obtenerUsuariosReceptoresPorIdEmisor(usuarioAutenticado.getId());
-	     System.out.println("Usuarios receptores para el usuario " + username + ": " + usuarios);
+	    
 
 	     return ResponseEntity.ok(usuarios);
 	 }
+	 
+	  @GetMapping("/noleido")
+	    public int countUnreadMessages() {
+		  String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		     Usuario usuarioAutenticado = usuarioService.findByUsername(username);
+	        return mensajeService.countUnreadMessages(usuarioAutenticado.getId());
+	    }
 
+	  
+	  @GetMapping("/usuarios-noleidos")
+	  public ResponseEntity<Integer> obtenerConteoMensajesNoLeidosDeUsuario(@RequestParam("idEmisor") int idEmisor) {
+	        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	        Usuario usuarioAutenticado = usuarioService.findByUsername(username);
+
+	        int count = mensajeService.contarMensajesNoLeidosDeUsuario(usuarioAutenticado.getId(), idEmisor);
+
+	        return ResponseEntity.ok(count);
+	    }
+	  
+	  @PostMapping("/marcar-leidos")
+	    public ResponseEntity<String> marcarMensajesComoLeidos(
+	            @RequestParam("idEmisor") int idEmisor) {
+	        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	        Usuario usuario = usuarioService.findByUsername(username);
+	        
+	        if (usuario != null) {
+	            mensajeService.marcarMensajesComoLeidos(idEmisor, usuario.getId());
+	            return ResponseEntity.ok("Mensajes marcados como leídos correctamente");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado");
+	        }
+	    }
 
 }
 
