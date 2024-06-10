@@ -19,7 +19,7 @@
         .container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center;    
             width: 90vw;
             margin-top: 20px;
         }
@@ -122,6 +122,65 @@
         .pagination .page-link:hover {
             background-color: #0056b3;
         }
+
+        .dropdown-checklist {
+            display: none;
+            position: absolute;
+            background-color: #555;
+            min-width: 160px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            color: white;
+        }
+
+        .dropdown-checklist label {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown-checklist input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .dropdown:hover .dropdown-checklist {
+            display: block;
+        }
+
+        .dropdown-checklist label:hover {
+            background-color: #444;
+        }
+
+        .btn-dropdown {
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-checklist input[type="text"] {
+            width: calc(100% - 34px);
+            box-sizing: border-box;
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: #555;
+            color: white;
+            border: none;
+        }
+
+        .dropdown-checklist .search-container {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            background-color: #555;
+        }
+
+        .dropdown-checklist .search-container i {
+            margin-left: 8px;
+            color: white;
+        }
     </style>
 </head>
 
@@ -129,6 +188,53 @@
     <div th:insert="~{layout/main_layout.html}"></div>
     <div class="container">
         <h2>Lista de Vehículos</h2>
+        <form id="filterForm" action="#" method="get" class="mb-3">
+            <div class="form-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                    Filtrar por marcas
+                </button>
+                <div class="dropdown-checklist">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Buscar marcas..." onkeyup="filterFunction()">
+                        <i class="fa fa-search"></i>
+                    </div>
+                    <div id="marcaChecklist">
+                        <div th:each="marca : ${marcas}">
+                            <label>
+                                <input type="checkbox" th:id="'marca_' + ${marca}" th:name="marcas" th:value="${marca}" th:checked="${selectedMarcas.contains(marca)}" onchange="submitFilterForm()">
+                                <span th:text="${marca}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                    Filtrar por usuarios con coches alquilados
+                </button>
+                <div class="dropdown-checklist">
+                    <div class="search-container">
+                        <input type="text" id="searchUserInput" placeholder="Buscar usuarios..." onkeyup="filterUserFunction()">
+                        <i class="fa fa-search"></i>
+                    </div>
+                    <div id="usuarioChecklist">
+                        <div th:each="usuario : ${usuariosConAlquiler}">
+                            <label>
+                                <input type="checkbox" th:id="'usuario_' + ${usuario}" th:name="usuario" th:value="${usuario}" th:checked="${selectedUsuario == usuario}" onchange="submitFilterForm()">
+                                <span th:text="${usuario}"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="ordenar" id="ordenar" value="">
+            <div>
+                <button type="button" class="btn btn-primary" onclick="toggleOrdenar()">
+                    <i id="ordenarIcon" class="fa fa-sort-amount-desc"></i> Ordenar por consumo
+                </button>
+               
+            </div>
+        </form>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -153,7 +259,7 @@
                     <td th:text="${vehiculo.alquilado ? 'Sí' : 'No'}"></td>
                     <td th:text="${vehiculo.fecha_inicio}"></td>
                     <td th:text="${vehiculo.fecha_fin}"></td>
-                    <td th:text="${vehiculo.usuario != null ? vehiculo.usuario.nombre : 'N/A'}"></td>
+                    <td th:text="${vehiculo.usuario != null ? vehiculo.usuario.nombre : 'No alquilado'}"></td>
                 </tr>
             </tbody>
         </table>
@@ -165,6 +271,20 @@
 
     <!-- Paginación -->
     <script>
+        window.onload = function () {
+            var urlParams = new URLSearchParams(window.location.search);
+
+            var ordenarInput = document.getElementById('ordenar');
+            var ordenarIcon = document.getElementById('ordenarIcon');
+            var ordenarValor = urlParams.get('ordenar') || 'mayor';
+            ordenarInput.value = ordenarValor;
+            if (ordenarValor === 'mayor') {
+                ordenarIcon.className = 'fa fa-sort-amount-desc';
+            } else {
+                ordenarIcon.className = 'fa fa-sort-amount-asc';
+            }
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             var rowsPerPage = 7; // Número de filas por página
             var rows = document.querySelectorAll('tbody tr');
@@ -236,6 +356,61 @@
             showPage(1);
             document.querySelector('.container').appendChild(pagination);
         });
+
+        function submitFilterForm() {
+            document.getElementById('filterForm').submit();
+        }
+
+        function filterFunction() {
+            var input, filter, div, labels, i;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            div = document.getElementById("marcaChecklist");
+            labels = div.getElementsByTagName("label");
+            for (i = 0; i < labels.length; i++) {
+                var span = labels[i].getElementsByTagName("span")[0];
+                if (span) {
+                    var txtValue = span.textContent || span.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        labels[i].style.display = "";
+                    } else {
+                        labels[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function filterUserFunction() {
+            var input, filter, div, labels, i;
+            input = document.getElementById("searchUserInput");
+            filter = input.value.toUpperCase();
+            div = document.getElementById("usuarioChecklist");
+            labels = div.getElementsByTagName("label");
+            for (i = 0; i < labels.length; i++) {
+                var span = labels[i].getElementsByTagName("span")[0];
+                if (span) {
+                    var txtValue = span.textContent || span.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        labels[i].style.display = "";
+                    } else {
+                        labels[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function toggleOrdenar() {
+            var ordenarInput = document.getElementById("ordenar");
+            var ordenarIcon = document.getElementById("ordenarIcon");
+            if (ordenarInput.value === "mayor") {
+                ordenarInput.value = "menor";
+                ordenarIcon.className = "fa fa-sort-amount-asc";
+            } else {
+                ordenarInput.value = "mayor";
+                ordenarIcon.className = "fa fa-sort-amount-desc";
+            }
+            submitFilterForm();
+        }
     </script>
 </body>
 
