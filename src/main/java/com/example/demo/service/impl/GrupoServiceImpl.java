@@ -315,6 +315,192 @@ public class GrupoServiceImpl implements GrupoService {
 
 	    return response;
 	}
+	
+	@Override
+	public Map<String, Object> actualizarGrupoConDatos(int grupoId, Map<String, Object> updates) {
+	    Grupo grupo = obtenerGrupoPorId(grupoId);
+	    Map<String, Object> response = new HashMap<>();
+
+	    if (grupo == null) {
+	        response.put("error", "Grupo no encontrado");
+	        return response;
+	    }
+
+	    if (updates.containsKey("dineroGasolina")) {
+	        grupo.setDineroGasolina(((Number) updates.get("dineroGasolina")).floatValue());
+	    }
+	    if (updates.containsKey("kilometrosRecorridos")) {
+	        grupo.setKilometrosRecorridos(((Number) updates.get("kilometrosRecorridos")).intValue());
+	    }
+	    if (updates.containsKey("consumoGasolina")) {
+	        grupo.setConsumoGasolina(((Number) updates.get("consumoGasolina")).floatValue());
+	    }
+
+	    actualizarGrupo(grupo);
+
+	    response.put("id", grupo.getId());
+	    response.put("titulo", grupo.getTitulo());
+	    response.put("descripcion", grupo.getDescripcion());
+	    response.put("consumoGasolina", grupo.getConsumoGasolina());
+	    response.put("kilometrosRecorridos", grupo.getKilometrosRecorridos());
+	    response.put("dineroGasolina", grupo.getDineroGasolina());
+	    response.put("activado", grupo.isActivado());
+	    response.put("borrado", grupo.isBorrado());
+
+	    return response;
+	}
+
+	
+	@Override
+	public Map<String, Object> calcularCostoViaje(int grupoId) {
+	    Grupo grupo = obtenerGrupoPorId(grupoId);
+	    Map<String, Object> response = new HashMap<>();
+
+	    if (grupo == null) {
+	        response.put("error", "Grupo no encontrado");
+	        return response;
+	    }
+
+	    // Asumimos que solo los usuarios activos en el grupo cuentan para dividir el costo
+	    long integrantes = grupo.getUsuarios().stream()
+	            .filter(usuarioGrupo -> !usuarioGrupo.getUsuario().isBorrado())
+	            .count();
+
+	    if (integrantes == 0) {
+	        response.put("error", "No hay integrantes activos en el grupo");
+	        return response;
+	    }
+
+	    // Realizar el cálculo del costo del viaje
+	    double costoViaje = (grupo.getKilometrosRecorridos() * (grupo.getConsumoGasolina() / 100) * grupo.getDineroGasolina());
+
+	    // Actualizar el campo 'costetotal' en cada UsuarioGrupo
+	    for (UsuarioGrupo usuarioGrupo : grupo.getUsuarios()) {
+	        if (!usuarioGrupo.getUsuario().isBorrado()) {
+	            if ("conductor".equals(usuarioGrupo.getRol())) {
+	                usuarioGrupo.setCostetotal((float) (costoViaje - (costoViaje / integrantes))); // No dividir para el conductor
+	            } else {
+	                usuarioGrupo.setCostetotal((float) (costoViaje / integrantes)); // Dividir entre los pasajeros
+	            }
+	            actualizarUsuarioGrupo(usuarioGrupo);
+	        }
+	    }
+
+	    // Formatear la respuesta
+	    response.put("costoViaje", costoViaje);
+	    response.put("grupoId", grupoId);
+	    response.put("tituloGrupo", grupo.getTitulo());
+
+	    return response;
+	}
+
+	
+	@Override
+	public Map<String, Object> obtenerDetallesGrupo(int grupoId) {
+	    Grupo grupo = obtenerGrupoPorId(grupoId);
+	    Map<String, Object> response = new HashMap<>();
+
+	    if (grupo == null) {
+	        response.put("error", "Grupo no encontrado");
+	        return response;
+	    }
+
+	    // Construir un mapa de la respuesta excluyendo los usuarios
+	    response.put("id", grupo.getId());
+	    response.put("titulo", grupo.getTitulo());
+	    response.put("descripcion", grupo.getDescripcion());
+	    response.put("consumoGasolina", grupo.getConsumoGasolina());
+	    response.put("kilometrosRecorridos", grupo.getKilometrosRecorridos());
+	    response.put("dineroGasolina", grupo.getDineroGasolina());
+	    response.put("activado", grupo.isActivado());
+	    response.put("borrado", grupo.isBorrado());
+
+	    return response;
+	}
+	@Override
+	public Map<String, Object> procesarPago(int grupoId, int usuarioId) {
+	    Map<String, Object> response = new HashMap<>();
+	    Grupo grupo = obtenerGrupoPorId(grupoId);
+
+	    if (grupo == null) {
+	        response.put("error", "Grupo no encontrado");
+	        return response;
+	    }
+
+	    Optional<UsuarioGrupo> usuarioGrupoOptional = obtenerRolYNombrePorUsuarioYGrupo(usuarioId, grupoId);
+	    if (!usuarioGrupoOptional.isPresent()) {
+	        response.put("error", "Usuario no encontrado en el grupo");
+	        return response;
+	    }
+
+	    UsuarioGrupo usuarioGrupo = usuarioGrupoOptional.get();
+	    usuarioGrupo.setCostepagado(usuarioGrupo.getCostetotal());
+	    actualizarUsuarioGrupo(usuarioGrupo);
+
+	    response.put("usuarioId", usuarioId);
+	    response.put("grupoId", grupoId);
+	    response.put("costepagado", usuarioGrupo.getCostepagado());
+	    response.put("costetotal", usuarioGrupo.getCostetotal());
+
+	    return response;
+	}
+
+	@Override
+	public Map<String, Object> actualizarCostepagado(int grupoId, int usuarioId) {
+	    Map<String, Object> response = new HashMap<>();
+	    Grupo grupo = obtenerGrupoPorId(grupoId);
+
+	    if (grupo == null) {
+	        response.put("error", "Grupo no encontrado");
+	        return response;
+	    }
+
+	    Optional<UsuarioGrupo> usuarioGrupoOptional = obtenerRolYNombrePorUsuarioYGrupo(usuarioId, grupoId);
+	    if (!usuarioGrupoOptional.isPresent()) {
+	        response.put("error", "Usuario no encontrado en el grupo");
+	        return response;
+	    }
+
+	    UsuarioGrupo usuarioGrupo = usuarioGrupoOptional.get();
+	    float diferencia = usuarioGrupo.getCostetotal() - usuarioGrupo.getCostepagado();
+
+	    // Actualizar el costepagado del usuario
+	    if (diferencia > 0) {
+	        usuarioGrupo.setCostepagado(usuarioGrupo.getCostepagado() + diferencia);
+	    } else {
+	        usuarioGrupo.setCostepagado(usuarioGrupo.getCostetotal());
+	    }
+	    actualizarUsuarioGrupo(usuarioGrupo);
+
+	    // Obtener el UsuarioGrupo del conductor
+	    Optional<UsuarioGrupo> conductorGrupoOptional = grupo.getUsuarios().stream()
+	            .filter(ug -> ug.getRol().equals("conductor"))
+	            .findFirst();
+
+	    if (!conductorGrupoOptional.isPresent()) {
+	        response.put("error", "Conductor no encontrado en el grupo");
+	        return response;
+	    }
+
+	    UsuarioGrupo conductorGrupo = conductorGrupoOptional.get();
+
+	    // Actualizar el costepagado del conductor
+	    if (diferencia > 0) {
+	        conductorGrupo.setCostepagado(conductorGrupo.getCostepagado() + diferencia);
+	    } else {
+	        conductorGrupo.setCostepagado(conductorGrupo.getCostepagado() + usuarioGrupo.getCostetotal());
+	    }
+	    actualizarUsuarioGrupo(conductorGrupo);
+
+	    // Construir la respuesta
+	    response.put("usuarioId", usuarioId);
+	    response.put("grupoId", grupoId);
+	    response.put("costepagadoUsuario", usuarioGrupo.getCostepagado());
+	    response.put("costetotalUsuario", usuarioGrupo.getCostetotal());
+	    response.put("costepagadoConductor", conductorGrupo.getCostepagado());
+
+	    return response;
+	}
 
 
 }

@@ -56,14 +56,26 @@ public interface GrupoService {
 	public void salirGrupo(Usuario usuario, int grupoId);
 
 	Map<String, Object> obtenerGruposYUsuarios(String estado, Integer grupoId, String email);
-	
+
 	Map<String, Object> crearGrupoYUsuarioGrupo(Grupo grupo, Usuario usuario);
 
-    String crearInvitacionParaGrupo(int grupoId);
-    
-    String unirseAGrupo(String codigoInvitacion, Usuario usuario);
-    List<Map<String, Object>> obtenerGruposDelUsuario(Usuario usuario);
-    
-    Map<String, Object> getRolYNombrePorUsuarioYGrupoResponse(int usuarioId, int grupoId);
-  
+	String crearInvitacionParaGrupo(int grupoId);
+
+	String unirseAGrupo(String codigoInvitacion, Usuario usuario);
+
+	List<Map<String, Object>> obtenerGruposDelUsuario(Usuario usuario);
+
+	Map<String, Object> getRolYNombrePorUsuarioYGrupoResponse(int usuarioId, int grupoId);
+
+	Map<String, Object> actualizarGrupoConDatos(int grupoId, Map<String, Object> updates);
+	
+	Map<String, Object> calcularCostoViaje(int grupoId);
+	
+	 Map<String, Object> obtenerDetallesGrupo(int grupoId);
+
+		    Map<String, Object> procesarPago(int grupoId, int usuarioId);
+		    Map<String, Object> actualizarCostepagado(int grupoId, int usuarioId);
+		
+
+
 }
