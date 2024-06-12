@@ -34,4 +34,7 @@ public interface DatosVehiculosRepository extends JpaRepository<DatosVehiculos, 
 	DatosVehiculos findByMarcaAndAnioAndModeloAndVersion(String marca, int anio, String modelo, String version);
 
 	List<DatosVehiculos> findByUsuario(Usuario usuario);
+	
+	@Query("SELECT dv FROM DatosVehiculos dv WHERE dv.alquilado = true")
+    List<DatosVehiculos> findAllAlquilados();
 }

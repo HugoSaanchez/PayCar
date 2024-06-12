@@ -51,21 +51,43 @@ public class MensajeServiceImpl implements MensajeService {
 	public List<String> obtenerNombresReceptoresPorIdEmisor(int idEmisor) {
 	    return mensajeRepository.findDistinctReceptorNamesByEmisorId(idEmisor);
 	}
-	
 	@Override
 	public List<UsuarioDTO> obtenerUsuariosReceptoresPorIdEmisor(int idEmisor) {
-	    List<Mensaje> mensajes = mensajeRepository.findByEmisorId(idEmisor);
-	    return mensajes.stream()
-	            .map(mensaje -> new UsuarioDTO(
-	                mensaje.getReceptor().getId(),
-	                mensaje.getReceptor().getNombre(),
-	                mensaje.getReceptor().getUsername(),
-	                mensaje.getReceptor().getRol(),
-	                mensaje.getReceptor().isActivado(),
-	                null))
-	            .distinct()
-	            .collect(Collectors.toList());
+	    List<Mensaje> mensajesEnviados = mensajeRepository.findByEmisorId(idEmisor);
+	    List<Mensaje> mensajesRecibidos = mensajeRepository.findByReceptorId(idEmisor);
+	    
+	    List<UsuarioDTO> usuariosReceptores = mensajesEnviados.stream()
+	        .map(mensaje -> new UsuarioDTO(
+	            mensaje.getReceptor().getId(),
+	            mensaje.getReceptor().getNombre(),
+	            mensaje.getReceptor().getUsername(),
+	            mensaje.getReceptor().getRol(),
+	            mensaje.getReceptor().isActivado(),
+	            null))
+	        .distinct()
+	        .collect(Collectors.toList());
+	        
+	    List<UsuarioDTO> usuariosEmisores = mensajesRecibidos.stream()
+	        .map(mensaje -> new UsuarioDTO(
+	            mensaje.getEmisor().getId(),
+	            mensaje.getEmisor().getNombre(),
+	            mensaje.getEmisor().getUsername(),
+	            mensaje.getEmisor().getRol(),
+	            mensaje.getEmisor().isActivado(),
+	            null))
+	        .distinct()
+	        .collect(Collectors.toList());
+	    
+	    usuariosReceptores.addAll(usuariosEmisores);
+	    
+	    // Eliminar duplicados
+	    List<UsuarioDTO> todosUsuarios = usuariosReceptores.stream()
+	        .distinct()
+	        .collect(Collectors.toList());
+	    
+	    return todosUsuarios;
 	}
+
 	
 	   @Override
 	    public List<UsuarioDTO> obtenerUsuariosEmisoresPorIdReceptor(int idReceptor) {

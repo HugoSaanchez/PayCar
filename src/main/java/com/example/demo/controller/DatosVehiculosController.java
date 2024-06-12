@@ -121,6 +121,12 @@ public class DatosVehiculosController {
 	     
 	     return ResponseEntity.ok(resultado);
 	 }
+	 
+	 @GetMapping("/actualizar-alquilados")
+	    public ResponseEntity<Map<String, Object>> actualizarEstadoAlquilado() {
+	        Map<String, Object> response = datosVehiculosService.actualizarEstadoAlquilado();
+	        return ResponseEntity.ok(response);
+	    }
 
 
 }

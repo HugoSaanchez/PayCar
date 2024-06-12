@@ -7,6 +7,7 @@
     <title>Lista de Vehículos</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         body {
             background-color: #555;
@@ -19,7 +20,7 @@
         .container {
             display: flex;
             flex-direction: column;
-            align-items: center;    
+            align-items: center;
             width: 90vw;
             margin-top: 20px;
         }
@@ -201,7 +202,8 @@
                     <div id="marcaChecklist">
                         <div th:each="marca : ${marcas}">
                             <label>
-                                <input type="checkbox" th:id="'marca_' + ${marca}" th:name="marcas" th:value="${marca}" th:checked="${selectedMarcas.contains(marca)}" onchange="submitFilterForm()">
+                                <input type="checkbox" th:id="'marca_' + ${marca}" th:name="marcas" th:value="${marca}"
+                                    th:checked="${selectedMarcas.contains(marca)}" onchange="submitFilterForm()">
                                 <span th:text="${marca}"></span>
                             </label>
                         </div>
@@ -214,18 +216,28 @@
                 </button>
                 <div class="dropdown-checklist">
                     <div class="search-container">
-                        <input type="text" id="searchUserInput" placeholder="Buscar usuarios..." onkeyup="filterUserFunction()">
+                        <input type="text" id="searchUserInput" placeholder="Buscar usuarios..."
+                            onkeyup="filterUserFunction()">
                         <i class="fa fa-search"></i>
                     </div>
                     <div id="usuarioChecklist">
                         <div th:each="usuario : ${usuariosConAlquiler}">
                             <label>
-                                <input type="checkbox" th:id="'usuario_' + ${usuario}" th:name="usuario" th:value="${usuario}" th:checked="${selectedUsuario == usuario}" onchange="submitFilterForm()">
+                                <input type="checkbox" th:id="'usuario_' + ${usuario}" th:name="usuarios"
+                                    th:value="${usuario}" th:checked="${selectedUsuarios != null ? selectedUsuarios.contains(usuario) : false}"
+                                    onchange="submitFilterForm()">
                                 <span th:text="${usuario}"></span>
                             </label>
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-secondary" onclick="showDateRangePicker()">
+                    <i class="fa fa-calendar"></i> Filtrar por fechas
+                </button>
+                <input type="hidden" id="dateRangePicker" name="fechaInicio" th:value="${fechaInicio}">
+                <input type="hidden" id="dateRangePickerEnd" name="fechaFin" th:value="${fechaFin}">
             </div>
             <input type="hidden" name="ordenar" id="ordenar" value="">
             <div>
@@ -246,7 +258,6 @@
                     <th>Modelo</th>
                     <th>Versión</th>
                     <th>Mixto</th>
-                    <th>Alquilado</th>
                     <th>Fecha Inicio</th>
                     <th>Fecha Fin</th>
                     <th>Usuario</th>
@@ -259,9 +270,8 @@
                     <td th:text="${vehiculo.modelo}"></td>
                     <td th:text="${vehiculo.version}"></td>
                     <td th:text="${vehiculo.mixto}"></td>
-                    <td th:text="${vehiculo.alquilado ? 'Sí' : 'No'}"></td>
-                    <td th:text="${vehiculo.fecha_inicio}"></td>
-                    <td th:text="${vehiculo.fecha_fin}"></td>
+                    <td th:text="${vehiculo.alquilado ? vehiculo.fecha_inicio : 'No alquilado'}"></td>
+                    <td th:text="${vehiculo.alquilado ? vehiculo.fecha_fin : 'No alquilado'}"></td>
                     <td th:text="${vehiculo.usuario != null ? vehiculo.usuario.nombre : 'No alquilado'}"></td>
                 </tr>
             </tbody>
@@ -271,6 +281,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <script>
         window.onload = function () {
@@ -426,7 +437,30 @@
             // Resetea los checkboxes de usuarios
             document.querySelectorAll('#usuarioChecklist input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
 
+            // Resetea el campo de consumo
+            document.getElementById('searchInput').value = '';
+
+            // También resetea el valor oculto de "ordenar" para ordenar por ID
+            document.getElementById('ordenar').value = 'id';
+            document.getElementById('ordenarIcon').className = 'fa fa-sort-numeric-asc'; // Cambia el icono si es necesario
+
             submitFilterForm();
+        }
+
+        function showDateRangePicker() {
+            flatpickr("#dateRangePicker", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                onClose: function (selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        const startDate = selectedDates[0].toISOString().split('T')[0];
+                        const endDate = selectedDates[1].toISOString().split('T')[0];
+                        document.getElementById("dateRangePicker").value = startDate;
+                        document.getElementById("dateRangePickerEnd").value = endDate;
+                        document.getElementById("filterForm").submit();
+                    }
+                }
+            }).open();
         }
     </script>
 </body>

@@ -122,6 +122,43 @@
         .pagination .page-link:hover {
             background-color: #0056b3;
         }
+
+        .dropdown-checklist {
+            display: none;
+            position: absolute;
+            background-color: #555;
+            min-width: 160px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            color: white;
+        }
+
+        .dropdown-checklist label {
+            display: block;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown:hover .dropdown-checklist {
+            display: block;
+        }
+
+        .dropdown-checklist label:hover {
+            background-color: #444;
+        }
+
+        .btn-dropdown {
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-checklist .search-container i {
+            margin-left: 8px;
+            color: white;
+        }
     </style>
 </head>
 
@@ -129,15 +166,18 @@
     <div th:insert="~{layout/main_layout.html}"></div>
     <div class="container">
         <h2>Lista de Grupos</h2>
-        <div class="select-container">
-            <form action="/admin/grupo" method="get">
-                <label for="filtroEstado">Activado/Desactivado:</label>
-                <select id="filtroEstado" name="estado" onchange="this.form.submit()">
-                    <option value="todos" th:selected="${estado == 'todos' || estado == null}">Todos</option>
-                    <option value="activados" th:selected="${estado == 'activados'}">Activados</option>
-                    <option value="desactivados" th:selected="${estado == 'desactivados'}">Desactivados</option>
-                </select>
-            </form>
+        <div class="form-group dropdown">
+            <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                Activado/Desactivado
+            </button>
+            <div class="dropdown-checklist">
+                <form action="/admin/grupo" method="get" id="filtroEstadoForm">
+                    <label onclick="selectOption('todos')">Todos</label>
+                    <label onclick="selectOption('activados')">Activados</label>
+                    <label onclick="selectOption('desactivados')">Desactivados</label>
+                    <input type="hidden" id="filtroEstado" name="estado">
+                </form>
+            </div>
         </div>
         <table class="table table-striped">
             <thead>
@@ -205,7 +245,7 @@
                         <h5>Conductor</h5>
                         <div th:each="usuarioGrupo : ${grupo.usuarios}">
                             <p th:if="${usuarioGrupo.rol == 'conductor'}">
-                                <span th:text="${usuarioGrupo.usuario.nombre}"></span> 
+                                <span th:text="${usuarioGrupo.usuario.nombre}"></span>
                             </p>
                         </div>
                     </div>
@@ -213,8 +253,7 @@
                         <h5>Pasajeros</h5>
                         <div th:each="usuarioGrupo : ${grupo.usuarios}">
                             <p th:if="${usuarioGrupo.rol == 'pasajero'}">
-                                <span th:text="${usuarioGrupo.usuario.nombre}"></span> 
-                                
+                                <span th:text="${usuarioGrupo.usuario.nombre}"></span>
                             </p>
                         </div>
                     </div>
@@ -230,21 +269,20 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <!-- Paginación -->
     <script>
         window.onload = function () {
             var urlParams = new URLSearchParams(window.location.search);
-
             var filtroEstado = document.getElementById('filtroEstado');
             if (filtroEstado) {
                 filtroEstado.value = urlParams.get('estado') || 'todos';
             }
-
-            var filtroOrdenado = document.getElementById('filtroOrdenado');
-            if (filtroOrdenado) {
-                filtroOrdenado.value = urlParams.get('ordenado') || 'sinFiltro';
-            }
         };
+
+        function selectOption(value) {
+            var filtroEstado = document.getElementById('filtroEstado');
+            filtroEstado.value = value;
+            document.getElementById('filtroEstadoForm').submit();
+        }
 
         document.addEventListener('DOMContentLoaded', function () {
             var rowsPerPage = 5; // Número de filas por página

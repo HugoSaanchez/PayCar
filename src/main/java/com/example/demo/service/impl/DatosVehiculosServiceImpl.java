@@ -75,8 +75,9 @@ public class DatosVehiculosServiceImpl implements DatosVehiculosService {
                 // Actualizar el estado de alquilado en la base de datos
                 DatosVehiculos vehiculo = datosVehiculosRepository.findByMarcaAndAnioAndModeloAndVersion(marca, anio, modelo, version);
                 vehiculo.setAlquilado(false);
-                vehiculo.setFecha_inicio(null);  // Borrar fecha de inicio
-                vehiculo.setFecha_fin(null);     // Borrar fecha de fin
+                vehiculo.setFecha_inicio(null);  
+                vehiculo.setFecha_fin(null);   
+                vehiculo.setUsuario(null);
                 datosVehiculosRepository.save(vehiculo);
             }
 
@@ -119,6 +120,26 @@ public class DatosVehiculosServiceImpl implements DatosVehiculosService {
     @Override
     public List<DatosVehiculos> getAllDatosVehiculos() {
         return datosVehiculosRepository.findAll();
+    }
+    
+    @Override
+    @Transactional
+    public Map<String, Object> actualizarEstadoAlquilado() {
+        List<DatosVehiculos> vehiculosAlquilados = datosVehiculosRepository.findAllAlquilados();
+        Map<String, Object> response = new HashMap<>();
+
+        for (DatosVehiculos vehiculo : vehiculosAlquilados) {
+            if (vehiculo.getFecha_fin() != null && vehiculo.getFecha_fin().toLocalDate().isBefore(LocalDate.now())) {
+                vehiculo.setAlquilado(false);
+                vehiculo.setFecha_inicio(null);
+                vehiculo.setFecha_fin(null);
+                vehiculo.setUsuario(null);
+                datosVehiculosRepository.save(vehiculo);
+            }
+        }
+
+        response.put("actualizados", vehiculosAlquilados.size());
+        return response;
     }
    
 

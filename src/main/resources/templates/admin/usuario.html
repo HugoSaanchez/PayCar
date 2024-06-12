@@ -40,6 +40,43 @@
         .pagination .page-link:hover {
             background-color: #0056b3;
         }
+
+        .dropdown-checklist {
+            display: none;
+            position: absolute;
+            background-color: #555;
+            min-width: 160px;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            color: white;
+        }
+
+        .dropdown-checklist label {
+            display: block;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .dropdown:hover .dropdown-checklist {
+            display: block;
+        }
+
+        .dropdown-checklist label:hover {
+            background-color: #444;
+        }
+
+        .btn-dropdown {
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-checklist .search-container i {
+            margin-left: 8px;
+            color: white;
+        }
     </style>
 </head>
 
@@ -48,20 +85,33 @@
 
     <div class="table-container">
         <div class="select-container">
-            <form action="/admin/usuario" method="get">
-                <label for="filtroEstado">Activado/Desactivado</label>
-                <select id="filtroEstado" name="estado" onchange="this.form.submit()">
-                    <option value="todos" th:selected="${estado == 'todos' || estado == null}">Todos</option>
-                    <option value="activados" th:selected="${estado == 'activados'}">Activados</option>
-                    <option value="desactivados" th:selected="${estado == 'desactivados'}">Desactivados</option>
-                </select>
-                <label for="filtroOrdenado">Ordenar valoración</label>
-                <select id="filtroOrdenado" name="ordenado" onchange="this.form.submit()">
-                    <option value="sinFiltro" th:selected="${ordenado == 'sinFiltro' || ordenado == null}">Sin Filtro</option>
-                    <option value="mayorMenor" th:selected="${ordenado == 'mayorMenor'}">Mayor a Menor</option>
-                    <option value="menorMayor" th:selected="${ordenado == 'menorMayor'}">Menor a Mayor</option>
-                </select>
-            </form>
+            <div class="form-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                    Activado/Desactivado
+                </button>
+                <div class="dropdown-checklist">
+                    <form action="/admin/usuario" method="get" id="filtroEstadoForm">
+                        <label onclick="selectOption('todos')">Todos</label>
+                        <label onclick="selectOption('activados')">Activados</label>
+                        <label onclick="selectOption('desactivados')">Desactivados</label>
+                        <input type="hidden" id="filtroEstado" name="estado">
+                    </form>
+                </div>
+            </div>
+
+            <div class="form-group dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                    Ordenar valoración
+                </button>
+                <div class="dropdown-checklist">
+                    <form action="/admin/usuario" method="get" id="filtroOrdenadoForm">
+                        <label onclick="selectOrdenado('sinFiltro')">Sin Filtro</label>
+                        <label onclick="selectOrdenado('mayorMenor')">Mayor a Menor</label>
+                        <label onclick="selectOrdenado('menorMayor')">Menor a Mayor</label>
+                        <input type="hidden" id="filtroOrdenado" name="ordenado">
+                    </form>
+                </div>
+            </div>
         </div>
 
         <table>
@@ -163,6 +213,18 @@
         function cargarComentarios(idUsuario) {
             var comentariosContainer = document.getElementById('comentariosContainer');
             comentariosContainer.innerHTML = 'Aquí van los comentarios del usuario con ID ' + idUsuario;
+        }
+
+        function selectOption(value) {
+            var filtroEstado = document.getElementById('filtroEstado');
+            filtroEstado.value = value;
+            document.getElementById('filtroEstadoForm').submit();
+        }
+
+        function selectOrdenado(value) {
+            var filtroOrdenado = document.getElementById('filtroOrdenado');
+            filtroOrdenado.value = value;
+            document.getElementById('filtroOrdenadoForm').submit();
         }
 
         document.addEventListener('DOMContentLoaded', function () {
