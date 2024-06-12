@@ -37,6 +37,7 @@ public interface UsuarioService {
 	ResponseEntity<String> agregarAmigo(int idAmigo);
 	
 	 public void confirmarAmigo( int amigoId);
+	 public void rechazarAmigo(Usuario usuarioAutenticado, Usuario amigo);
 	 public List<Valoracion> valorarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, int valoracion);
 	 
 	 public List<Comentario> comentarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, String comentario);

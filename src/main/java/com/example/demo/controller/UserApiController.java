@@ -255,6 +255,29 @@ public class UserApiController {
 
 	        return ResponseEntity.ok("Amigo confirmado correctamente");
 	    }
+	   @PutMapping("/rechazar-amigo")
+	   public ResponseEntity<String> rechazarAmigo(@RequestParam("idAmigo") int idAmigo) {
+	       // Obtener el usuario autenticado
+	       String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	       Usuario usuarioAutenticado = usuarioService.findByUsername(username);
+
+	       // Verificar si el usuario autenticado es válido
+	       if (usuarioAutenticado == null) {
+	           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+	       }
+
+	       // Verificar si el ID del amigo existe
+	       Usuario amigo = usuarioService.findById(idAmigo);
+	       if (amigo == null) {
+	           return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El usuario con el ID especificado no existe");
+	       }
+
+	       // Rechazar la solicitud de amistad
+	       usuarioService.rechazarAmigo(usuarioAutenticado, amigo);
+
+	       return ResponseEntity.ok("Solicitud de amistad rechazada correctamente");
+	   }
+
 	   
 	   @GetMapping("/ver-amigosConfirmado")
 	    public ResponseEntity<?> verAmigos() {
