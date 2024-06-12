@@ -35,18 +35,29 @@ public interface UsuarioService {
 	void actualizarListaAmigos(Usuario usuario, int idAmigoNuevo);
 
 	ResponseEntity<String> agregarAmigo(int idAmigo);
-	
-	 public void confirmarAmigo( int amigoId);
-	 public void rechazarAmigo(Usuario usuarioAutenticado, Usuario amigo);
-	 public List<Valoracion> valorarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, int valoracion);
-	 
-	 public List<Comentario> comentarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, String comentario);
 
-	 public Valoracion obtenerValoracion(Usuario pasajero, Usuario conductor, int idGrupo);
-	 public Comentario obtenerComentario(Usuario pasajero, Usuario conductor, int idGrupo);
-	 public void borrarAmigo(int idUsuario, int idAmigo);
-	 public Map<String, Object> obtenerEstadisticasUsuario(int idUsuario);
-	 public double obtenerMediaValoracionUsuario(int usuarioId);
-	  public List<ComentarioDTO> obtenerComentariosParaConductor(int conductorId);
-	  public double obtenerMediaValoracionParaConductor(int conductorId);
+	public void confirmarAmigo(int amigoId);
+
+	public void rechazarAmigo(Usuario usuarioAutenticado, Usuario amigo);
+
+	public List<Valoracion> valorarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, int valoracion);
+
+	public List<Comentario> comentarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, String comentario);
+
+	public Valoracion obtenerValoracion(Usuario pasajero, Usuario conductor, int idGrupo);
+
+	public Comentario obtenerComentario(Usuario pasajero, Usuario conductor, int idGrupo);
+
+	public void borrarAmigo(int idUsuario, int idAmigo);
+
+	public Map<String, Object> obtenerEstadisticasUsuario(int idUsuario);
+
+	public double obtenerMediaValoracionUsuario(int usuarioId);
+
+	public List<ComentarioDTO> obtenerComentariosParaConductor(int conductorId);
+
+	public double obtenerMediaValoracionParaConductor(int conductorId);
+	
+	
+	
 }

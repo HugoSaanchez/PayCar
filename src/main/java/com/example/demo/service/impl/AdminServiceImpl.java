@@ -1,8 +1,12 @@
 package com.example.demo.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Comentario;
@@ -13,6 +17,7 @@ import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.repository.ValoracionRepository;
 import com.example.demo.service.AdminService;
 import com.example.demo.service.GrupoService;
+import com.example.demo.service.UsuarioService;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -30,6 +35,8 @@ public class AdminServiceImpl implements AdminService {
 	
 	@Autowired
 	private GrupoService grupoService;
+	@Autowired
+	private UsuarioService usuarioService;
 
 	@Override
 	public List<Usuario> findByRol(String rol) {
@@ -132,10 +139,51 @@ public class AdminServiceImpl implements AdminService {
         return comentarios;
     }
 
+    @Override
+    public Map<String, Object> obtenerDatosUsuario(String estado, String ordenado) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        String username = usuarioService.findUsernameByEmail(email);
 
+        List<Usuario> usuarios;
+        if ("activados".equals(estado)) {
+            usuarios = findByEstado("activados");
+        } else if ("desactivados".equals(estado)) {
+            usuarios = findByEstado("desactivados");
+        } else {
+            usuarios = findByRol("ROL_USER");
+        }
 
+        Map<String, String> valoraciones = new HashMap<>();
+        for (Usuario usuario : usuarios) {
+            double mediaValoracion = usuarioService.obtenerMediaValoracionUsuario(usuario.getId());
+            String mediaTruncada = String.format("%.2f", mediaValoracion).replace(",", "."); // Reemplazar coma por punto
+            String userUsername = usuario.getUsername(); // Usar username como clave
+            valoraciones.put(userUsername, mediaTruncada);
+        }
 
-    
+        usuarios = ordenarUsuariosPorValoracion(usuarios, ordenado);
+
+        Map<String, Object> resultado = new HashMap<>();
+        resultado.put("usuario", username);
+        resultado.put("usuarios", usuarios);
+        resultado.put("valoraciones", valoraciones);
+
+        return resultado;
+    }
+
+    @Override
+    public Map<String, Object> mostrarComentariosPorIdConductor(int idConductor) {
+        List<Comentario> comentarios = comentarioRepository.findComentariosAndPasajeroByConductorId(idConductor);
+        Map<String, Object> result = new HashMap<>();
+        if (!comentarios.isEmpty()) {
+            Usuario conductor = comentarios.get(0).getConductor();
+            String nombreConductor = conductor.getNombre();
+            result.put("nombreConductor", nombreConductor);
+        }
+        result.put("comentarios", comentarios);
+        return result;
+    }
     
     
 }

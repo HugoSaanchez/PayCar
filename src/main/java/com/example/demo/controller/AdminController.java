@@ -31,39 +31,17 @@ public class AdminController {
 	private AdminService adminService;
 
 	@GetMapping("/usuario")
-	public String mainLayout(@RequestParam(value = "estado", defaultValue = "todos") String estado,
-	                         @RequestParam(value = "ordenado", defaultValue = "sinFiltro") String ordenado,
-	                         Model model) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String email = authentication.getName();
-	    String username = usuarioService.findUsernameByEmail(email);
+    public String mainLayout(@RequestParam(value = "estado", defaultValue = "todos") String estado,
+                             @RequestParam(value = "ordenado", defaultValue = "sinFiltro") String ordenado,
+                             Model model) {
+        Map<String, Object> datosUsuario = adminService.obtenerDatosUsuario(estado, ordenado);
 
-	    List<Usuario> usuarios;
-	    if ("activados".equals(estado)) {
-	        usuarios = adminService.findByEstado("activados");
-	    } else if ("desactivados".equals(estado)) {
-	        usuarios = adminService.findByEstado("desactivados");
-	    } else {
-	        usuarios = adminService.findByRol("ROL_USER");
-	    }
+        model.addAttribute("usuario", datosUsuario.get("usuario"));
+        model.addAttribute("usuarios", datosUsuario.get("usuarios"));
+        model.addAttribute("valoraciones", datosUsuario.get("valoraciones"));
 
-	    Map<String, String> valoraciones = new HashMap<>();
-	    for (Usuario usuario : usuarios) {
-	        double mediaValoracion = usuarioService.obtenerMediaValoracionUsuario(usuario.getId());
-	        String mediaTruncada = String.format("%.2f", mediaValoracion).replace(",", "."); // Reemplazar coma por punto
-	        String userUsername = usuario.getUsername(); // Usar username como clave
-	        valoraciones.put(userUsername, mediaTruncada);
-	    }
-
-	    usuarios = adminService.ordenarUsuariosPorValoracion(usuarios, ordenado);
-
-	    model.addAttribute("usuario", username);
-	    model.addAttribute("usuarios", usuarios);
-	    model.addAttribute("valoraciones", valoraciones);
-	   
-	    return "admin/usuario";
-	}
-
+        return "admin/usuario";
+    }
 
 
 
@@ -82,22 +60,18 @@ public class AdminController {
 		return "redirect:/admin/usuario";
 	}
 
-	@GetMapping("/comentarios/conductor/{id}")
-	public String encontrarComentariosPorIdConductor(@PathVariable("id") int idConductor, Model model) {
+    @GetMapping("/comentarios/conductor/{id}")
+    public String encontrarComentariosPorIdConductor(@PathVariable("id") int idConductor, Model model) {
+        Map<String, Object> datos = adminService.mostrarComentariosPorIdConductor(idConductor);
 
-	    List<Comentario> comentarios = adminService.encontrarComentariosPorIdConductor(idConductor);
-	    if (!comentarios.isEmpty()) {
-	        // Si hay comentarios, procesa la lista
-	        Usuario conductor = comentarios.get(0).getConductor();
-	        String nombreConductor = conductor.getNombre();
-	        model.addAttribute("nombreConductor", nombreConductor);
-	    }
+        if (datos.containsKey("nombreConductor")) {
+            model.addAttribute("nombreConductor", datos.get("nombreConductor"));
+        }
 
-	    model.addAttribute("comentarios", comentarios);
+        model.addAttribute("comentarios", datos.get("comentarios"));
 
-	    return "admin/comentarios"; // Cambia la vista a la que se redirige
-	}
-
+        return "admin/comentarios";
+    }
 
 
 
