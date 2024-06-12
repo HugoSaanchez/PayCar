@@ -72,7 +72,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
 		usuario.setActivado(true);
 		usuario.setBorrado(false);
-		usuario.setRol("ROL_ADMIN");
+		usuario.setRol("ROL_USER");
 
 		return usuarioRepository.save(usuario);
 	}
@@ -258,6 +258,19 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 
 	        save(amigo);
 	    }
+		
+		@Override
+		public void rechazarAmigo(Usuario usuarioAutenticado, Usuario amigo) {
+		    // Remover al amigo de la lista de amigos pendientes del usuario autenticado
+		    String amigosActuales = usuarioAutenticado.getAmigos() != null ? usuarioAutenticado.getAmigos() : "";
+		    List<String> listaAmigos = new ArrayList<>(List.of(amigosActuales.split(";")));
+		    listaAmigos.remove(String.valueOf(amigo.getId()));
+		    usuarioAutenticado.setAmigos(String.join(";", listaAmigos));
+
+		    // Guardar los cambios en el usuario autenticado
+		    save(usuarioAutenticado);
+		}
+
 		
 		@Override
 		public List<Valoracion> valorarUsuario(Usuario pasajero, Usuario conductor, int idGrupo, int valoracion) {
