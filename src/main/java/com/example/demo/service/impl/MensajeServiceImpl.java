@@ -1,16 +1,20 @@
 package com.example.demo.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Mensaje;
 import com.example.demo.entity.Usuario;
+import com.example.demo.entityDTO.MensajeDTO;
 import com.example.demo.entityDTO.UsuarioDTO;
-import com.example.demo.entityDTO.UsuarioMensajeDTO;
 import com.example.demo.repository.MensajeRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.service.MensajeService;
@@ -24,19 +28,7 @@ public class MensajeServiceImpl implements MensajeService {
 	@Autowired
 	private MensajeRepository mensajeRepository;
 	
-	@Override
-	 public Mensaje enviarMensaje(int idEmisor, int idReceptor, String contenidoMensaje) {
-	        Usuario emisor = usuarioRepository.findById(idEmisor);
-	        Usuario receptor = usuarioRepository.findById(idReceptor);
 
-	        Mensaje nuevoMensaje = new Mensaje();
-	        nuevoMensaje.setEmisor(emisor);
-	        nuevoMensaje.setReceptor(receptor);
-	        nuevoMensaje.setMensaje(contenidoMensaje);
-	        nuevoMensaje.setHora(LocalDateTime.now());
-
-	        return mensajeRepository.save(nuevoMensaje);
-	    }
 	@Override
 	  public List<Mensaje> obtenerMensajesEntreEmisorYReceptor(int idEmisor, int idReceptor) {
 	        // Utiliza el repositorio para buscar los mensajes entre el emisor y el receptor, ordenados por ID
@@ -121,6 +113,54 @@ public class MensajeServiceImpl implements MensajeService {
 	            mensaje.setLeido(true);
 	        }
 	        mensajeRepository.saveAll(mensajes);
+	    }
+	    
+	    @Override
+	    public ResponseEntity<String> enviarElMensaje(String username, int idReceptor, String contenidoMensaje) {
+	        Usuario emisor = usuarioRepository.findByUsername(username);
+
+	        if (emisor == null) {
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+	        }
+
+	        Usuario receptor = usuarioRepository.findById(idReceptor);
+	        if (receptor == null) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El usuario con el ID especificado no existe");
+	        }
+
+	        Mensaje nuevoMensaje = new Mensaje();
+	        nuevoMensaje.setEmisor(emisor);
+	        nuevoMensaje.setReceptor(receptor);
+	        nuevoMensaje.setMensaje(contenidoMensaje);
+	        nuevoMensaje.setHora(LocalDateTime.now());
+
+	        mensajeRepository.save(nuevoMensaje);
+
+	        return ResponseEntity.ok("Mensaje enviado correctamente");
+	    }
+	    
+	    @Override
+	    public ResponseEntity<List<MensajeDTO>> verMensajes(int idEmisor, int idReceptor) {
+	        // Obtener todos los mensajes del emisor
+	        List<Mensaje> mensajesEmisor = mensajeRepository.findByEmisorIdAndReceptorId(idEmisor, idReceptor);
+
+	        // Obtener todos los mensajes del receptor
+	        List<Mensaje> mensajesReceptor = mensajeRepository.findByEmisorIdAndReceptorId(idReceptor, idEmisor);
+
+	        // Combinar los mensajes del emisor y del receptor en una lista
+	        List<Mensaje> todosMensajes = new ArrayList<>(mensajesEmisor);
+	        todosMensajes.addAll(mensajesReceptor);
+
+	        // Ordenar los mensajes por hora
+	        todosMensajes.sort(Comparator.comparing(Mensaje::getHora));
+
+	        // Convertir los mensajes a DTOs
+	        List<MensajeDTO> mensajesDTO = todosMensajes.stream()
+	                .map(mensaje -> new MensajeDTO(mensaje.getEmisor().getId(), mensaje.getReceptor().getId(), mensaje.getMensaje(), mensaje.getHora()))
+	                .collect(Collectors.toList());
+
+	        // Devolver los mensajes DTO en la respuesta
+	        return ResponseEntity.ok(mensajesDTO);
 	    }
 
 }

@@ -31,22 +31,16 @@ public class AdminController {
 	private AdminService adminService;
 
 	@GetMapping("/usuario")
-    public String mainLayout(@RequestParam(value = "estado", defaultValue = "todos") String estado,
-                             @RequestParam(value = "ordenado", defaultValue = "sinFiltro") String ordenado,
-                             Model model) {
-        Map<String, Object> datosUsuario = adminService.obtenerDatosUsuario(estado, ordenado);
+	public String mainLayout(@RequestParam(value = "estado", defaultValue = "todos") String estado,
+			@RequestParam(value = "ordenado", defaultValue = "sinFiltro") String ordenado, Model model) {
+		Map<String, Object> datosUsuario = adminService.obtenerDatosUsuario(estado, ordenado);
 
-        model.addAttribute("usuario", datosUsuario.get("usuario"));
-        model.addAttribute("usuarios", datosUsuario.get("usuarios"));
-        model.addAttribute("valoraciones", datosUsuario.get("valoraciones"));
+		model.addAttribute("usuario", datosUsuario.get("usuario"));
+		model.addAttribute("usuarios", datosUsuario.get("usuarios"));
+		model.addAttribute("valoraciones", datosUsuario.get("valoraciones"));
 
-        return "admin/usuario";
-    }
-
-
-
-
-
+		return "admin/usuario";
+	}
 
 	@PostMapping("/borrar/{id}")
 	public String borrarUsuario(@PathVariable("id") int id) {
@@ -60,20 +54,17 @@ public class AdminController {
 		return "redirect:/admin/usuario";
 	}
 
-    @GetMapping("/comentarios/conductor/{id}")
-    public String encontrarComentariosPorIdConductor(@PathVariable("id") int idConductor, Model model) {
-        Map<String, Object> datos = adminService.mostrarComentariosPorIdConductor(idConductor);
+	@GetMapping("/comentarios/conductor/{id}")
+	public String encontrarComentariosPorIdConductor(@PathVariable("id") int idConductor, Model model) {
+		Map<String, Object> datos = adminService.mostrarComentariosPorIdConductor(idConductor);
 
-        if (datos.containsKey("nombreConductor")) {
-            model.addAttribute("nombreConductor", datos.get("nombreConductor"));
-        }
+		if (datos.containsKey("nombreConductor")) {
+			model.addAttribute("nombreConductor", datos.get("nombreConductor"));
+		}
 
-        model.addAttribute("comentarios", datos.get("comentarios"));
+		model.addAttribute("comentarios", datos.get("comentarios"));
 
-        return "admin/comentarios";
-    }
-
-
-
+		return "admin/comentarios";
+	}
 
 }
