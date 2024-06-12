@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.DatosVehiculos;
@@ -244,5 +246,60 @@ public class DatosVehiculosServiceImpl implements DatosVehiculosService {
         return resultado;
     }
     
+    
+    @Override
+    public ResponseEntity<String> alquilarVehiculo(String marca, int anio, String modelo, String version, String fechaInicio, String fechaFin, String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username);
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+
+        try {
+            DatosVehiculos vehiculo = datosVehiculosRepository.findByMarcaAndAnioAndModeloAndVersion(marca, anio, modelo, version);
+            if (vehiculo != null) {
+                vehiculo.setAlquilado(true);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                vehiculo.setFecha_inicio(java.sql.Date.valueOf(LocalDate.parse(fechaInicio, formatter)));
+                vehiculo.setFecha_fin(java.sql.Date.valueOf(LocalDate.parse(fechaFin, formatter)));
+                vehiculo.setUsuario(usuario);
+                datosVehiculosRepository.save(vehiculo);
+                return ResponseEntity.ok("Vehículo alquilado exitosamente");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al alquilar el vehículo");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al alquilar el vehículo");
+        }
+    }
+    
+    @Override
+    public ResponseEntity<List<Map<String, Object>>> obtenerVehiculosAlquilados(String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username);
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        List<DatosVehiculos> vehiculosAlquilados = datosVehiculosRepository.findByUsuario(usuario);
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        for (DatosVehiculos vehiculo : vehiculosAlquilados) {
+            Map<String, Object> vehiculoMap = new HashMap<>();
+            vehiculoMap.put("id", vehiculo.getId());
+            vehiculoMap.put("marca", vehiculo.getMarca());
+            vehiculoMap.put("anio", vehiculo.getAnio());
+            vehiculoMap.put("modelo", vehiculo.getModelo());
+            vehiculoMap.put("version", vehiculo.getVersion());
+            vehiculoMap.put("mixto", vehiculo.getMixto());
+            vehiculoMap.put("alquilado", vehiculo.getAlquilado());
+            vehiculoMap.put("fecha_inicio", vehiculo.getFecha_inicio());
+            vehiculoMap.put("fecha_fin", vehiculo.getFecha_fin());
+            vehiculoMap.put("usuario_id", vehiculo.getUsuario().getId());
+
+            resultado.add(vehiculoMap);
+        }
+
+        return ResponseEntity.ok(resultado);
+    }
     
 }
