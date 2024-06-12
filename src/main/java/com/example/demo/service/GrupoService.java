@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
+
 import com.example.demo.entity.Grupo;
 import com.example.demo.entity.Invitacion;
 import com.example.demo.entity.Usuario;
@@ -54,4 +56,14 @@ public interface GrupoService {
 	public void salirGrupo(Usuario usuario, int grupoId);
 
 	Map<String, Object> obtenerGruposYUsuarios(String estado, Integer grupoId, String email);
+	
+	Map<String, Object> crearGrupoYUsuarioGrupo(Grupo grupo, Usuario usuario);
+
+    String crearInvitacionParaGrupo(int grupoId);
+    
+    String unirseAGrupo(String codigoInvitacion, Usuario usuario);
+    List<Map<String, Object>> obtenerGruposDelUsuario(Usuario usuario);
+    
+    Map<String, Object> getRolYNombrePorUsuarioYGrupoResponse(int usuarioId, int grupoId);
+  
 }

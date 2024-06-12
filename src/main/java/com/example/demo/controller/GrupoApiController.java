@@ -38,126 +38,77 @@ public class GrupoApiController {
 
 	@PostMapping("/crear-grupo")
 	public String crearGrupo(@RequestBody Grupo grupo, Model model) {
-		// Obtén el usuario autenticado de Spring Security
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	    // Obtén el usuario autenticado de Spring Security
+	    String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-		Usuario usuario = usuarioService.findByUsername(username);
+	    Usuario usuario = usuarioService.findByUsername(username);
 
-		if (usuario == null) {
+	    if (usuario == null) {
+	        return "error";
+	    }
 
-			return "error";
-		}
+	    // Llama al servicio para crear el grupo y el usuario-grupo
+	    Map<String, Object> resultado = grupoService.crearGrupoYUsuarioGrupo(grupo, usuario);
 
-		// Guarda el grupo para obtener un ID generado
-		Grupo nuevoGrupo = grupoService.crearGrupo(grupo);
+	    // Agrega atributos al modelo si vas a mostrar alguna vista
+	    model.addAttribute("grupo", resultado.get("grupo"));
+	    model.addAttribute("usuarioGrupo", resultado.get("usuarioGrupo"));
 
-		// Crea un UsuarioGrupo con el usuario como conductor y el grupo recién creado
-		UsuarioGrupo usuarioGrupo = new UsuarioGrupo();
-		usuarioGrupo.setUsuario(usuario);
-		usuarioGrupo.setGrupo(nuevoGrupo);
-		usuarioGrupo.setRol("conductor");
-
-		// Guarda el UsuarioGrupo
-		grupoService.crearUsuarioGrupo(usuarioGrupo);
-
-		// Agrega atributos al modelo si vas a mostrar alguna vista
-		model.addAttribute("grupo", nuevoGrupo);
-		model.addAttribute("usuarioGrupo", usuarioGrupo);
-
-		// Retorna a la vista de éxito o donde sea adecuado
-		return "grupo-creado"; // Asume que tienes una vista que se llama "grupo-creado"
+	    // Retorna a la vista de éxito o donde sea adecuado
+	    return "grupo-creado"; // Asume que tienes una vista que se llama "grupo-creado"
 	}
+
 
 	@PostMapping("/crear-invitacion/{grupoId}")
 	public String crearInvitacion(@PathVariable int grupoId, Model model) {
-
-		String codigoInvitacion = grupoService.generarCodigoUnico();
-
-		Grupo grupo = grupoService.obtenerGrupoPorId(grupoId);
-
-		Invitacion invitacion = new Invitacion();
-		invitacion.setCodigoInvitacion(codigoInvitacion);
-		invitacion.setGrupo(grupo);
-
-		grupoService.guardarInvitacion(invitacion);
-
-		String enlaceInvitacion = "http://localhost:8080/unirse-grupo?codigo=" + codigoInvitacion;
-
-		return enlaceInvitacion;
+	    String enlaceInvitacion = grupoService.crearInvitacionParaGrupo(grupoId);
+	    return enlaceInvitacion;
 	}
+
 
 	@GetMapping("/unirse-grupo")
 	public ResponseEntity<?> unirseGrupo(@RequestParam("codigo") String codigoInvitacion, Model model) {
-	    // Obtener la invitación correspondiente al código
-	    Invitacion invitacion = grupoService.obtenerGrupoPorCodigo(codigoInvitacion);
+	    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	    Usuario usuario = usuarioService.findByUsername(username);
+	    
+	    if (usuario == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado.");
+	    }
 
-	    // Verificar si la invitación existe
-	    if (invitacion != null) {
-	        // Obtener el ID del grupo asociado al código de invitación
-	        int grupoId = invitacion.getGrupo().getId();
-
-	        // Obtener el usuario autenticado
-	        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-	        Usuario usuario = usuarioService.findByUsername(username);
-
-	        // Verificar si el usuario ya está en el grupo
-	        Optional<UsuarioGrupo> usuarioGrupoExistente = grupoService.obtenerRolYNombrePorUsuarioYGrupo(usuario.getId(), grupoId);
-	        if (usuarioGrupoExistente.isPresent()) {
-	            // Si el usuario ya está en el grupo, devolver un mensaje de error
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya estás en este grupo.");
-	        }
-
-	        // Crear un UsuarioGrupo con el usuario y el grupo correspondiente
-	        UsuarioGrupo usuarioGrupo = new UsuarioGrupo();
-	        usuarioGrupo.setUsuario(usuario);
-	        usuarioGrupo.setGrupo(grupoService.obtenerGrupoPorId(grupoId));
-	        usuarioGrupo.setRol("pasajero"); // O el rol que desees asignar al usuario
-
-	        // Guardar el UsuarioGrupo
-	        grupoService.crearUsuarioGrupo(usuarioGrupo);
-
-	        // Devolver un mensaje de éxito
-	        return ResponseEntity.ok("Te has unido al grupo exitosamente.");
+	    String respuesta = grupoService.unirseAGrupo(codigoInvitacion, usuario);
+	    if (respuesta.equals("Te has unido al grupo exitosamente.")) {
+	        return ResponseEntity.ok(respuesta);
 	    } else {
-	        // Si la invitación no existe, devolver un mensaje de error
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Código de invitación no válido.");
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(respuesta);
 	    }
 	}
 
 
 	@GetMapping("/grupos")
-	public List<Map<String, Object>> getGruposDelUsuario() {
-		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		Usuario usuario = usuarioService.findByUsername(username);
-		if (usuario != null) {
-			List<Grupo> grupos = grupoService.obtenerGruposPorUsuario(usuario);
-			return grupos.stream().map(grupo -> Map.of("id", grupo.getId(), "titulo", grupo.getTitulo(), "descripcion",
-					grupo.getDescripcion(), "consumoGasolina", grupo.getConsumoGasolina(), "kilometrosRecorridos",
-					grupo.getKilometrosRecorridos(), "dineroGasolina", grupo.getDineroGasolina(), "activado",
-					grupo.isActivado(), "borrado", grupo.isBorrado(), "usuarios", grupo.getUsuarios().stream()
-							.map(usuarioGrupo -> usuarioGrupo.getUsuario().getId()).collect(Collectors.toList())))
-					.collect(Collectors.toList());
-		} else {
-			return List.of();
-		}
+	public ResponseEntity<List<Map<String, Object>>> getGruposDelUsuario() {
+	    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+	    Usuario usuario = usuarioService.findByUsername(username);
+
+	    if (usuario == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	    }
+
+	    List<Map<String, Object>> grupos = grupoService.obtenerGruposDelUsuario(usuario);
+	    return ResponseEntity.ok(grupos);
 	}
 
+
 	@GetMapping("/usuario-grupo")
-    public Map<String, Object> getRolYNombrePorUsuarioYGrupo(@RequestParam int usuarioId, @RequestParam int grupoId) {
-        Optional<UsuarioGrupo> usuarioGrupoOptional = grupoService.obtenerRolYNombrePorUsuarioYGrupo(usuarioId, grupoId);
+	public ResponseEntity<Map<String, Object>> getRolYNombrePorUsuarioYGrupo(@RequestParam int usuarioId, @RequestParam int grupoId) {
+	    Map<String, Object> response = grupoService.getRolYNombrePorUsuarioYGrupoResponse(usuarioId, grupoId);
 
-        Map<String, Object> response = new HashMap<>();
-        if (usuarioGrupoOptional.isPresent()) {
-            UsuarioGrupo usuarioGrupo = usuarioGrupoOptional.get();
-            response.put("id", usuarioGrupo.getUsuario().getId());
-            response.put("nombre", usuarioGrupo.getUsuario().getNombre());
-            response.put("rol", usuarioGrupo.getRol());
-        } else {
-            response.put("error", "No se encontró el usuario en el grupo especificado");
-        }
+	    if (response.containsKey("error")) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+	    }
 
-        return response;
-    }
+	    return ResponseEntity.ok(response);
+	}
+
 	
 	@PostMapping("/calcular-costo-viaje")
 	public ResponseEntity<?> calcularCostoViaje(@RequestParam int grupoId) {
