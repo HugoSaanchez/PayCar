@@ -102,13 +102,16 @@ public class VehiculosController {
 
         if (fechaInicio != null && !fechaInicio.isEmpty() && fechaFin != null && !fechaFin.isEmpty()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate startDate = LocalDate.parse(fechaInicio, formatter);
-            LocalDate endDate = LocalDate.parse(fechaFin, formatter);
+            LocalDate startDate = LocalDate.parse(fechaInicio, formatter).plusDays(1);
+            LocalDate endDate = LocalDate.parse(fechaFin, formatter).plusDays(1);
+            System.out.println(startDate + " + " + endDate );
 
-            filteredDatosVehiculos = filteredDatosVehiculos.stream()
+            filteredDatosVehiculos = datosVehiculos.stream()
                     .filter(dv -> dv.getFecha_fin() != null)
                     .filter(dv -> {
                         LocalDate fechaFinVehiculo = dv.getFecha_fin().toLocalDate();
+                        System.out.println((fechaFinVehiculo.isAfter(startDate) || fechaFinVehiculo.isEqual(startDate)) &&
+                               (fechaFinVehiculo.isBefore(endDate) || fechaFinVehiculo.isEqual(endDate)));
                         return (fechaFinVehiculo.isAfter(startDate) || fechaFinVehiculo.isEqual(startDate)) &&
                                (fechaFinVehiculo.isBefore(endDate) || fechaFinVehiculo.isEqual(endDate));
                     })

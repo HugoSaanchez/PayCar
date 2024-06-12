@@ -157,12 +157,12 @@
         }
 
         .btn-dropdown {
-            width: 100%;
+                   width: calc(100% - 10px);
             text-align: left;
         }
 
         .dropdown-checklist input[type="text"] {
-            width: calc(100% - 34px);
+            width: calc(100% - 10px);
             box-sizing: border-box;
             padding: 8px;
             margin-bottom: 8px;
@@ -190,58 +190,64 @@
     <div class="container">
         <h2>Lista de Vehículos</h2>
         <form id="filterForm" action="#" method="get" class="mb-3">
-            <div class="form-group dropdown">
-                <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
-                    Filtrar por marcas
-                </button>
-                <div class="dropdown-checklist">
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Buscar marcas..." onkeyup="filterFunction()">
-                        <i class="fa fa-search"></i>
-                    </div>
-                    <div id="marcaChecklist">
-                        <div th:each="marca : ${marcas}">
-                            <label>
-                                <input type="checkbox" th:id="'marca_' + ${marca}" th:name="marcas" th:value="${marca}"
-                                    th:checked="${selectedMarcas.contains(marca)}" onchange="submitFilterForm()">
-                                <span th:text="${marca}"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group dropdown">
-                <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
-                    Filtrar por usuarios con coches alquilados
-                </button>
-                <div class="dropdown-checklist">
-                    <div class="search-container">
-                        <input type="text" id="searchUserInput" placeholder="Buscar usuarios..."
-                            onkeyup="filterUserFunction()">
-                        <i class="fa fa-search"></i>
-                    </div>
-                    <div id="usuarioChecklist">
-                        <div th:each="usuario : ${usuariosConAlquiler}">
-                            <label>
-                                <input type="checkbox" th:id="'usuario_' + ${usuario}" th:name="usuarios"
-                                    th:value="${usuario}" th:checked="${selectedUsuarios != null ? selectedUsuarios.contains(usuario) : false}"
-                                    onchange="submitFilterForm()">
-                                <span th:text="${usuario}"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="form-group">
-                <button type="button" class="btn btn-secondary" onclick="showDateRangePicker()">
-                    <i class="fa fa-calendar"></i> Filtrar por fechas
-                </button>
-                <input type="hidden" id="dateRangePicker" name="fechaInicio" th:value="${fechaInicio}">
-                <input type="hidden" id="dateRangePickerEnd" name="fechaFin" th:value="${fechaFin}">
+                <div class="dropdown mb-3">
+                    <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                        Filtrar por marcas
+                    </button>
+                    <div class="dropdown-checklist">
+                        <div class="search-container">
+                            <input type="text" id="searchInput" placeholder="Buscar marcas..." onkeyup="filterFunction()">
+                            <i class="fa fa-search"></i>
+                        </div>
+                        <div id="marcaChecklist">
+                            <div th:each="marca : ${marcas}">
+                                <label>
+                                    <input type="checkbox" th:id="'marca_' + ${marca}" th:name="marcas" th:value="${marca}"
+                                        th:checked="${selectedMarcas.contains(marca)}" onchange="submitFilterForm()">
+                                    <span th:text="${marca}"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 mb-3">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle btn-dropdown" type="button">
+                           Usuarios
+                        </button>
+                        <div class="dropdown-checklist">
+                            <div class="search-container">
+                                <input type="text" id="searchUserInput" placeholder="Buscar usuarios..."
+                                    onkeyup="filterUserFunction()">
+                                <i class="fa fa-search"></i>
+                            </div>
+                            <div id="usuarioChecklist">
+                                <div th:each="usuario : ${usuariosConAlquiler}">
+                                    <label>
+                                        <input type="checkbox" th:id="'usuario_' + ${usuario}" th:name="usuarios"
+                                            th:value="${usuario}" th:checked="${selectedUsuarios != null ? selectedUsuarios.contains(usuario) : false}"
+                                            onchange="submitFilterForm()">
+                                        <span th:text="${usuario}"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-6 mb-3">
+                    <button type="button" class="btn btn-secondary" onclick="showDateRangePicker()">
+                        <i class="fa fa-calendar"></i> 
+                    </button>
+                    <input type="hidden" id="dateRangePicker" name="fechaInicio" th:value="${fechaInicio}">
+                    <input type="hidden" id="dateRangePickerEnd" name="fechaFin" th:value="${fechaFin}">
+                </div>
             </div>
             <input type="hidden" name="ordenar" id="ordenar" value="">
             <div>
-                <button type="button" class="btn btn-primary" onclick="toggleOrdenar()">
+                <button type="button" class="btn btn-primary mr-2" onclick="toggleOrdenar()">
                     <i id="ordenarIcon" class="fa fa-sort-amount-desc"></i> Ordenar por consumo
                 </button>
                 <!-- Botón para quitar filtros -->
