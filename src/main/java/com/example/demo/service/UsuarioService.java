@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalDouble;
 
 import org.springframework.http.ResponseEntity;
 
@@ -10,6 +9,8 @@ import com.example.demo.entity.Comentario;
 import com.example.demo.entity.Usuario;
 import com.example.demo.entity.Valoracion;
 import com.example.demo.entityDTO.ComentarioDTO;
+import com.example.demo.entityDTO.UsuarioDTO;
+import com.example.demo.entityDTO.ValoracionDTO;
 import com.example.demo.model.UsuarioModel;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,7 +58,33 @@ public interface UsuarioService {
 	public List<ComentarioDTO> obtenerComentariosParaConductor(int conductorId);
 
 	public double obtenerMediaValoracionParaConductor(int conductorId);
-	
-	
-	
+
+	UsuarioDTO login(String username, String password);
+
+	ResponseEntity<String> agregarAmigo(int idAmigo, String username);
+
+	boolean isAmigoConfirmado(Usuario usuario, int idAmigo);
+
+	public ResponseEntity<?> verPosiblesAmigos(String username);
+
+	ResponseEntity<UsuarioDTO> getUsuarioByEmail(String email);
+
+	ResponseEntity<String> getUsuarioById(int id);
+
+	ResponseEntity<Integer> obtenerNumeroAmigos(String username);
+
+	ResponseEntity<String> rechazarAlAmigo(int idAmigo, String username);
+
+	ResponseEntity<?> verAmigosConfirmados(String username);
+
+	ResponseEntity<String> valorarAlUsuario(String username, int idConductor, int valoracion, int idGrupo);
+
+	ResponseEntity<String> comentarAlUsuario(String username, int idConductor, String comentario, int idGrupo);
+
+	ResponseEntity<String> verValoracion(String username, int idConductor, int idGrupo);
+	ResponseEntity<String> verComentario(String username, int idConductor, int idGrupo);
+	ResponseEntity<String> borrarAlAmigo(String username, int idAmigo);
+	 ResponseEntity<?> verEstadisticas(String username);
+	 ResponseEntity<ValoracionDTO> verMediaValoracionConductor(String username);
+	 ResponseEntity<List<ComentarioDTO>> verTodosLosComentarios(String username);
 }
