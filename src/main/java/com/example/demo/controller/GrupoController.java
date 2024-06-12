@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.demo.entity.Grupo;
-import com.example.demo.entity.UsuarioGrupo;
 import com.example.demo.service.GrupoService;
 import com.example.demo.service.UsuarioService;
 
@@ -30,36 +28,25 @@ public class GrupoController {
 	@Autowired
 	private UsuarioService usuarioService;
 
-	@GetMapping("/grupo")
-	public String obtenerGrupos(
-	    @RequestParam(value = "estado", defaultValue = "todos") String estado,
-	    @RequestParam(required = false, name = "grupoId") Integer grupoId,
-	    Model model) {
+	  @GetMapping("/grupo")
+	    public String obtenerGrupos(@RequestParam(value = "estado", defaultValue = "todos") String estado,
+	                                @RequestParam(required = false, name = "grupoId") Integer grupoId,
+	                                Model model) {
 
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    String email = authentication.getName();
-	    String username = usuarioService.findUsernameByEmail(email);
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	        String email = authentication.getName();
+	        
+	        Map<String, Object> datos = grupoService.obtenerGruposYUsuarios(estado, grupoId, email);
 
-	    if (grupoId != null) {
-	        List<UsuarioGrupo> usuariosGrupo = grupoService.obtenerUsuariosPorGrupoId(grupoId);
-	        System.out.println(usuariosGrupo);
-	        model.addAttribute("usuariosGrupo", usuariosGrupo);
+	        model.addAttribute("grupos", datos.get("grupos"));
+	        model.addAttribute("usuario", datos.get("usuario"));
+	        if (datos.containsKey("usuariosGrupo")) {
+	            model.addAttribute("usuariosGrupo", datos.get("usuariosGrupo"));
+	        }
+	        model.addAttribute("estado", estado);
+	        
+	        return "admin/grupo"; // Nombre de la vista donde mostrar los grupos
 	    }
-
-	    List<Grupo> grupos;
-	    if ("activados".equals(estado)) {
-	        grupos = grupoService.findByEstado("activados");
-	    } else if ("desactivados".equals(estado)) {
-	        grupos = grupoService.findByEstado("desactivados");
-	    } else {
-	        grupos = grupoService.obtenerGrupos();
-	    }
-
-	    model.addAttribute("grupos", grupos);
-	    model.addAttribute("usuario", username);
-	    model.addAttribute("estado", estado);
-	    return "admin/grupo"; // Nombre de la vista donde mostrar los grupos
-	}
 
 
     

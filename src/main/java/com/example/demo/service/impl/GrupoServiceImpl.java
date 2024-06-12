@@ -18,6 +18,7 @@ import com.example.demo.repository.ComentarioRepository;
 import com.example.demo.repository.GrupoRepository;
 import com.example.demo.repository.InvitacionRepository;
 import com.example.demo.repository.UsuarioGrupoRepository;
+import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.repository.ValoracionRepository;
 import com.example.demo.service.GrupoService;
 
@@ -40,6 +41,9 @@ public class GrupoServiceImpl implements GrupoService {
 
 	@Autowired
 	private UsuarioGrupoRepository usuarioGrupoRepository;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
 	@Override
 	public List<Grupo> obtenerGrupos() {
@@ -185,5 +189,31 @@ public class GrupoServiceImpl implements GrupoService {
         Optional<UsuarioGrupo> usuarioGrupo = usuarioGrupoRepository.findByUsuarioAndGrupoId(usuario, grupoId);
         usuarioGrupo.ifPresent(usuarioGrupoRepository::delete);
     }
+	
+	@Override
+    public Map<String, Object> obtenerGruposYUsuarios(String estado, Integer grupoId, String email) {
+        Map<String, Object> resultado = new HashMap<>();
+        String username = usuarioRepository.findByUsername(email).getNombre();
+        
+        resultado.put("usuario", username);
+
+        if (grupoId != null) {
+            List<UsuarioGrupo> usuariosGrupo = obtenerUsuariosPorGrupoId(grupoId);
+            resultado.put("usuariosGrupo", usuariosGrupo);
+        }
+
+        List<Grupo> grupos;
+        if ("activados".equals(estado)) {
+            grupos = findByEstado("activados");
+        } else if ("desactivados".equals(estado)) {
+            grupos = findByEstado("desactivados");
+        } else {
+            grupos = obtenerGrupos();
+        }
+
+        resultado.put("grupos", grupos);
+        return resultado;
+    }
+
 
 }
