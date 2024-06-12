@@ -3,9 +3,12 @@ package com.example.demo.service.impl;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.DatosVehiculos;
 import com.example.demo.entity.Usuario;
 import com.example.demo.repository.DatosVehiculosRepository;
+import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.service.DatosVehiculosService;
 
 import jakarta.transaction.Transactional;
@@ -22,6 +26,9 @@ public class DatosVehiculosServiceImpl implements DatosVehiculosService {
 
     @Autowired
     private DatosVehiculosRepository datosVehiculosRepository;
+    
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public List<String> getMarcas() {
@@ -143,7 +150,99 @@ public class DatosVehiculosServiceImpl implements DatosVehiculosService {
     }
    
 
-    
+    @Override
+    public Map<String, Object> obtenerDatosFiltrados(String email, List<String> marcas, String consumo, String ordenar, List<String> usuarios, String fechaInicio, String fechaFin) {
+        Map<String, Object> resultado = new HashMap<>();
+        String username = usuarioRepository.findByUsername(email).getNombre();
+        resultado.put("usuario", username);
+
+        List<DatosVehiculos> datosVehiculos = datosVehiculosRepository.findAll();
+        List<String> todasLasMarcas = datosVehiculos.stream()
+                .map(DatosVehiculos::getMarca)
+                .distinct()
+                .collect(Collectors.toList());
+
+        if (marcas == null || marcas.isEmpty()) {
+            if (!todasLasMarcas.isEmpty()) {
+                marcas = new ArrayList<>();
+                marcas.add(todasLasMarcas.get(0));
+            } else {
+                marcas = new ArrayList<>();
+            }
+        }
+
+        List<String> finalMarcas = marcas;
+        List<DatosVehiculos> filteredDatosVehiculos = datosVehiculos.stream()
+                .filter(dv -> dv.getMarca() != null && (finalMarcas.isEmpty() || finalMarcas.contains(dv.getMarca())))
+                .collect(Collectors.toList());
+
+        if (consumo != null && !consumo.isEmpty()) {
+            filteredDatosVehiculos = filteredDatosVehiculos.stream()
+                    .filter(dv -> dv.getMixto() != null && dv.getMixto().equals(consumo))
+                    .collect(Collectors.toList());
+        }
+
+        if (usuarios != null && !usuarios.isEmpty()) {
+            List<String> usuariosEspecificos = usuarios.stream().filter(u -> !u.equals("No alquilado")).collect(Collectors.toList());
+            if (!usuariosEspecificos.isEmpty()) {
+                filteredDatosVehiculos = datosVehiculos.stream()
+                        .filter(dv -> dv.getUsuario() != null && usuariosEspecificos.contains(dv.getUsuario().getNombre()))
+                        .collect(Collectors.toList());
+            } else {
+                filteredDatosVehiculos = filteredDatosVehiculos.stream()
+                        .filter(dv -> dv.getUsuario() == null && usuarios.contains("No alquilado") && finalMarcas.contains(dv.getMarca()) ||
+                                dv.getUsuario() != null && (usuarios.contains(dv.getUsuario().getNombre()) || usuarios.contains("No alquilado")))
+                        .collect(Collectors.toList());
+            }
+        }
+
+        if (fechaInicio != null && !fechaInicio.isEmpty() && fechaFin != null && !fechaFin.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate startDate = LocalDate.parse(fechaInicio, formatter).plusDays(1);
+            LocalDate endDate = LocalDate.parse(fechaFin, formatter).plusDays(1);
+
+            filteredDatosVehiculos = datosVehiculos.stream()
+                    .filter(dv -> dv.getFecha_fin() != null)
+                    .filter(dv -> {
+                        LocalDate fechaFinVehiculo = dv.getFecha_fin().toLocalDate();
+                        return (fechaFinVehiculo.isAfter(startDate) || fechaFinVehiculo.isEqual(startDate)) &&
+                                (fechaFinVehiculo.isBefore(endDate) || fechaFinVehiculo.isEqual(endDate));
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        if (ordenar == null || ordenar.equals("id")) {
+            filteredDatosVehiculos.sort(Comparator.comparing(DatosVehiculos::getId));
+        } else if ("mayor".equals(ordenar)) {
+            filteredDatosVehiculos.sort((dv1, dv2) -> {
+                Double consumo1 = Double.valueOf(dv1.getMixto().replace("l/100Km", "").trim());
+                Double consumo2 = Double.valueOf(dv2.getMixto().replace("l/100Km", "").trim());
+                return consumo2.compareTo(consumo1);
+            });
+        } else if ("menor".equals(ordenar)) {
+            filteredDatosVehiculos.sort((dv1, dv2) -> {
+                Double consumo1 = Double.valueOf(dv1.getMixto().replace("l/100Km", "").trim());
+                Double consumo2 = Double.valueOf(dv2.getMixto().replace("l/100Km", "").trim());
+                return consumo1.compareTo(consumo2);
+            });
+        }
+
+        List<String> usuariosConAlquiler = datosVehiculos.stream()
+                .filter(dv -> dv.getUsuario() != null)
+                .map(dv -> dv.getUsuario().getNombre())
+                .distinct()
+                .collect(Collectors.toList());
+
+        resultado.put("datosVehiculos", filteredDatosVehiculos);
+        resultado.put("marcas", todasLasMarcas);
+        resultado.put("selectedMarcas", finalMarcas);
+        resultado.put("selectedConsumo", consumo);
+        resultado.put("ordenar", ordenar);
+        resultado.put("usuariosConAlquiler", usuariosConAlquiler);
+        resultado.put("selectedUsuarios", usuarios);
+
+        return resultado;
+    }
     
     
 }

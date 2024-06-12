@@ -18,4 +18,5 @@ public interface DatosVehiculosService {
     public List<DatosVehiculos> getVehiculosAlquiladosPorUsuario(Usuario usuario);
     public List<DatosVehiculos> getAllDatosVehiculos();
     public Map<String, Object> actualizarEstadoAlquilado();
+    public Map<String, Object> obtenerDatosFiltrados(String email, List<String> marcas, String consumo, String ordenar, List<String> usuarios, String fechaInicio, String fechaFin);
 }
