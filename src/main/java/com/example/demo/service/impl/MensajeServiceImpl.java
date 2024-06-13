@@ -55,7 +55,7 @@ public class MensajeServiceImpl implements MensajeService {
 	            mensaje.getReceptor().getUsername(),
 	            mensaje.getReceptor().getRol(),
 	            mensaje.getReceptor().isActivado(),
-	            null))
+	            mensaje.getEmisor().isBorrado(), null))
 	        .distinct()
 	        .collect(Collectors.toList());
 	        
@@ -66,7 +66,7 @@ public class MensajeServiceImpl implements MensajeService {
 	            mensaje.getEmisor().getUsername(),
 	            mensaje.getEmisor().getRol(),
 	            mensaje.getEmisor().isActivado(),
-	            null))
+	            mensaje.getEmisor().isBorrado(), null))
 	        .distinct()
 	        .collect(Collectors.toList());
 	    

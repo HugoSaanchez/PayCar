@@ -13,6 +13,7 @@ public class UsuarioDTO {
 	    private String username;
 	    private String rol;
 	    private boolean activado;
+	    private boolean borrado;
 	    private String token;
 }
 

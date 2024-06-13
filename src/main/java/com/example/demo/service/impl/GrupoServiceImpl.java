@@ -378,9 +378,9 @@ public class GrupoServiceImpl implements GrupoService {
 	    for (UsuarioGrupo usuarioGrupo : grupo.getUsuarios()) {
 	        if (!usuarioGrupo.getUsuario().isBorrado()) {
 	            if ("conductor".equals(usuarioGrupo.getRol())) {
-	                usuarioGrupo.setCostetotal((float) (costoViaje - (costoViaje / integrantes))); // No dividir para el conductor
+	                usuarioGrupo.setCostetotal((float) (costoViaje - (costoViaje / integrantes))); 
 	            } else {
-	                usuarioGrupo.setCostetotal((float) (costoViaje / integrantes)); // Dividir entre los pasajeros
+	                usuarioGrupo.setCostetotal((float) (costoViaje / integrantes)); 
 	            }
 	            actualizarUsuarioGrupo(usuarioGrupo);
 	        }

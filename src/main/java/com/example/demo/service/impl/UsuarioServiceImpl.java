@@ -125,7 +125,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 		usuario.setToken(token);
 
 		UsuarioDTO usuarioDTO = new UsuarioDTO(usuario.getId(), usuario.getNombre(), usuario.getUsername(),
-				usuario.getRol(), usuario.isActivado(), usuario.getToken());
+				usuario.getRol(), usuario.isActivado(),usuario.isBorrado(), usuario.getToken());
 
 		return usuarioDTO;
 	}
@@ -504,7 +504,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 			Usuario amigo = usuarioRepository.findById(id).orElse(null);
 			if (amigo != null) {
 				return new UsuarioDTO(amigo.getId(), amigo.getNombre(), amigo.getUsername(), amigo.getRol(),
-						amigo.isActivado(), amigo.getToken());
+						amigo.isActivado(),amigo.isBorrado(), amigo.getToken());
 			}
 			return null;
 		}).filter(amigo -> amigo != null).collect(Collectors.toList());
@@ -517,7 +517,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 		Usuario usuario = usuarioRepository.findByUsername(email);
 		if (usuario != null) {
 			UsuarioDTO usuarioDTO = new UsuarioDTO(usuario.getId(), usuario.getNombre(), usuario.getUsername(),
-					usuario.getRol(), usuario.isActivado(), usuario.getToken());
+					usuario.getRol(), usuario.isActivado(),usuario.isBorrado(), usuario.getToken());
 			return ResponseEntity.ok(usuarioDTO);
 		} else {
 			return ResponseEntity.notFound().build();
@@ -529,7 +529,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 		Usuario usuario = usuarioRepository.findById(id);
 		if (usuario != null) {
 			UsuarioDTO usuarioDTO = new UsuarioDTO(usuario.getId(), usuario.getNombre(), usuario.getUsername(),
-					usuario.getRol(), usuario.isActivado(), usuario.getToken());
+					usuario.getRol(), usuario.isActivado(),usuario.isBorrado(), usuario.getToken());
 			return ResponseEntity.ok(usuarioDTO.getNombre());
 		} else {
 			return ResponseEntity.notFound().build();
@@ -600,6 +600,7 @@ public class UsuarioServiceImpl implements UsuarioService, UserDetailsService {
 	                        amigo.getUsername(),
 	                        amigo.getRol(),
 	                        amigo.isActivado(),
+	                        amigo.isBorrado(),
 	                        amigo.getToken()
 	                    );
 	                }
