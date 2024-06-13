@@ -238,7 +238,8 @@
                     <p>Consumo de Gasolina: <span th:text="${grupo.consumoGasolina}"></span></p>
                     <p>Kilómetros Recorridos: <span th:text="${grupo.kilometrosRecorridos}"></span></p>
                     <p>Dinero Gasolina: <span th:text="${grupo.dineroGasolina}"></span></p>
-                    <p>Costo Total del Viaje: <span th:text="${(grupo.kilometrosRecorridos * grupo.consumoGasolina / 100) * grupo.dineroGasolina}"></span></p>
+                    <p>Costo Total del Viaje: <span th:text="${#numbers.formatDecimal((grupo.kilometrosRecorridos * grupo.consumoGasolina / 100) * grupo.dineroGasolina, 2, 2)}"></span></p>
+
                     <hr>
                     <h4>Usuarios en el Grupo:</h4>
                     <div>
