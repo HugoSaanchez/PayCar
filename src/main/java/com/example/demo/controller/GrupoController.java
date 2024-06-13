@@ -63,15 +63,13 @@ public class GrupoController {
     }
     
     @PostMapping("/grupo/borrar/{id}")
-    public ResponseEntity<?> borrarGrupo(@PathVariable("id") int id) {
-        try {
+    public String borrarGrupo(@PathVariable("id") int id) {
+       
         	
            // Eliminar comentarios relacionados
             grupoService.borrarGrupo(id); // Luego eliminar el grupo
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al borrar el grupo: " + e.getMessage());
-        }
+            return "redirect:/admin/grupo";
+        
     }
 
 }
